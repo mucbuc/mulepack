@@ -1,0 +1,22 @@
+{
+  "name": "mule",
+  "version": "0.0.0",
+  "description": "workhorse",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -u tdd --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mucbuc/mule.git"
+  },
+  "author": "mark busenitz",
+  "license": "GPL",
+  "bugs": {
+    "url": "https://github.com/mucbuc/mule/issues"
+  },
+  "homepage": "https://github.com/mucbuc/mule",
+  "devDependencies": {
+    "expector": "*"
+  }
+}
