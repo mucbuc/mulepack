@@ -16,6 +16,11 @@ function Mule(inStream) {
   openIO(function(context) {
     assert(context.hasOwnProperty('stderr'));
     assert(context.hasOwnProperty('stdout'));
+    console.log( 'context.stdout', context.stdout );
+    var o = fs.createWriteStream(context.stdout.path);
+    o.on( 'open', function() {
+      inStream.pipe(o);
+    });
   });
 
   function openIO(cb) {
@@ -23,8 +28,8 @@ function Mule(inStream) {
 
     ['stderr', 'stdout']
     .forEach(function(e) {
-      openOut(function(fd) {
-        result[e] = fd;
+      openOut(function(fd, path) {
+        result[e] = { fd: fd, path: path }; 
         checkIfDone();
       });
     });
