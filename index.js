@@ -3,11 +3,71 @@ events:
   child_error, error_read, read, write, exit, close
 */ 
 
-var cp = require( 'child_process' )
-  , stream = require( 'stream' );
+var assert = require( 'assert' )
+  , cp = require( 'child_process' )
+  , fs = require( 'fs' )
+  , stream = require( 'stream' )
+  , tmp = require( 'tmp' );
+
+function Mule(inStream) {
+  
+  assert( typeof inStream !== 'undefined' );
+
+  openIO(function(context) {
+    assert(context.hasOwnProperty('stderr'));
+    assert(context.hasOwnProperty('stdout'));
+  });
+
+  function openIO(cb) {
+    var result = {};
+
+    ['stderr', 'stdout']
+    .forEach(function(e) {
+      openOut(function(fd) {
+        result[e] = fd;
+        checkIfDone();
+      });
+    });
+
+    function checkIfDone() {
+      if (    result.hasOwnProperty('stderr')
+          &&  result.hasOwnProperty('stdout')) {
+        cb(result);
+      };
+    }
+    
+    function openOut(cb) {
+      tmp.file( function( err, path ) {
+        console.log( path );
+        if (err) throw err;
+        fs.open(path, 'a+', function(err, fd) {
+          if (err) throw err;
+          cb(fd, path);
+        });
+      });
+    }
+  }
+};
+
+module.exports = Mule;
 
 
+    // && result.hasOwnProperty('stdin')
 
+    // openIn(context.stdin, function(fd) {
+    //   result.stdin = fd;
+    //   checkIfDone();
+    // });
+
+    // function openIn(path, cb) {
+    //   assert( typeof path !== 'undefined' );
+    //   fs.open(path, 'r', function(err, fd) {
+    //     if (err) throw err;
+    //     cb(fd);
+    //   });
+    // }
+
+/*
           var child = cp.spawn( 
             args.cmd, 
             args.args, 
@@ -59,3 +119,4 @@ var cp = require( 'child_process' )
 
 
 exports.Processor = Processor;
+*/ 

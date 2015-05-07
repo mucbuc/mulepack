@@ -18,5 +18,8 @@
   "homepage": "https://github.com/mucbuc/mule",
   "devDependencies": {
     "expector": "*"
+  },
+  "dependencies": {
+    "tmp": "*"
   }
 }
