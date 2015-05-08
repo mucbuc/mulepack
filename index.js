@@ -9,62 +9,76 @@ var assert = require( 'assert' )
   , stream = require( 'stream' )
   , tmp = require( 'tmp' );
 
-function Mule(inStream) {
+function Mule(pack, stdin, stdout, stderr) {
   
-  assert( typeof inStream !== 'undefined' );
+  assert( Array.isArray(pack) );
+  assert( pack.length > 0 );
 
-  openIO(function(context) {
-    assert(context.hasOwnProperty('stderr'));
-    assert(context.hasOwnProperty('stdout'));
-    console.log( 'context.stdout', context.stdout );
-    var o = fs.createWriteStream(context.stdout.path);
-    o.on( 'open', function() {
-      inStream.pipe(o);
-    });
-  });
+  var current;
 
-  function openIO(cb) {
-    var result = {};
-
-    ['stderr', 'stdout']
-    .forEach(function(e) {
-      openOut(function(fd, path) {
-        result[e] = { fd: fd, path: path }; 
-        checkIfDone();
-      });
-    });
-
-    function checkIfDone() {
-      if (    result.hasOwnProperty('stderr')
-          &&  result.hasOwnProperty('stdout')) {
-        cb(result);
-      };
-    }
-    
-    function openOut(cb) {
-      tmp.file( function( err, path ) {
-        console.log( path );
-        if (err) throw err;
-        fs.open(path, 'a+', function(err, fd) {
-          if (err) throw err;
-          cb(fd, path);
+  pack.forEach(function(exec, index) {
+    if (index == exec.length - 1) {
+      if (typeof current === 'undefined') {
+        spawn(stdin, stdout, stderr );
+      }
+      else {
+        openCurrent( function(fd_in) { 
+          spawn(fd_in, stdout, stderr );
         });
+      }
+    }
+    else {
+      openTempFile(function(fd_out, path_out) {
+        if (typeof current === 'undefined') {
+          current = path_out;
+          spawn(stdin, fd_out, stderr );
+        }
+        else {
+          openCurrent( function(fd_in) {
+            spawn(fd_in, fd_out, stderr );
+          });
+        }
       });
     }
+
+  });
+  
+  function spawn() {
+    console.log( '*****' );
+    console.log( arguments );
+    console.log( '*****' );
   }
-};
+
+  function openCurrent(cb) {
+    assert(typeof current !== 'undefined');
+    fs.open(current, 'r', function(err, fd_in) {
+      if (err) throw err;
+      cb(fd_in);
+    });
+  }
+
+  function openTempFile(cb) {
+    tmp.file( function( err, path ) {
+      if (err) throw err;
+      fs.open(path, 'a+', function(err, fd) {
+        if (err) throw err;
+        cb(fd, path);
+      });
+    });
+  }
+}
 
 module.exports = Mule;
 
 
     // && result.hasOwnProperty('stdin')
 
-    // openIn(context.stdin, function(fd) {
+    // openReadStreams(context.stdin, function(fd) {
     //   result.stdin = fd;
     //   checkIfDone();
     // });
 
-    // function openIn(path, cb) {
+    // function openReadStreams(path, cb) {
     //   assert( typeof path !== 'undefined' );
     //   fs.open(path, 'r', function(err, fd) {
     //     if (err) throw err;
