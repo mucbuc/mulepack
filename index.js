@@ -19,11 +19,11 @@ function Mule(pack, stdin, stdout, stderr) {
   pack.forEach(function(exec, index) {
     if (index == exec.length - 1) {
       if (typeof current === 'undefined') {
-        spawn(stdin, stdout, stderr );
+        spawn(exec, stdin, stdout, stderr );
       }
       else {
         openCurrent( function(fd_in) { 
-          spawn(fd_in, stdout, stderr );
+          spawn(exec, fd_in, stdout, stderr );
         });
       }
     }
@@ -31,22 +31,22 @@ function Mule(pack, stdin, stdout, stderr) {
       openTempFile(function(fd_out, path_out) {
         if (typeof current === 'undefined') {
           current = path_out;
-          spawn(stdin, fd_out, stderr );
+          spawn(exec, stdin, fd_out, stderr );
         }
         else {
           openCurrent( function(fd_in) {
-            spawn(fd_in, fd_out, stderr );
+            current = path_out;
+            spawn(exec, fd_in, fd_out, stderr );
           });
         }
       });
     }
-
   });
   
-  function spawn() {
-    console.log( '*****' );
-    console.log( arguments );
-    console.log( '*****' );
+  function spawn(command, stdin, stdout, stderr) {
+    
+    var child = cp.spawn( command, [], { stdio: 'inherit' } );
+    //var child = cp.spawn( "pwd", [] );//, { stdio: [stdin, stdout, stderr] } );
   }
 
   function openCurrent(cb) {
