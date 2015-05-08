@@ -14,7 +14,7 @@ function Mule(pack, stdin, stdout, stderr) {
   assert( Array.isArray(pack) );
   assert( pack.length > 0 );
 
-  var current;
+  var stash;
 
   process.stdin.pause(); 
   process.stdin.setRawMode( false );
@@ -26,48 +26,41 @@ function Mule(pack, stdin, stdout, stderr) {
     pack.splice(0,1);
 
     if (pack.length) {
-      execLine(command, processNextCommand );
-    }
-    else {
-      if (typeof current === 'undefined') {
-        spawn(command, stdin, stdout, stderr );
-      }
-      else {
-        openCurrent( function(fd_in) { 
-          spawn(command, fd_in, stdout, stderr );
-        });
-      }
-    }
-
-    function execLine(command, cb) {
       openTempFile(function(fd_out, path_out) {
-        if (typeof current === 'undefined') {
-          current = path_out;
+        if (typeof stash === 'undefined') {
+          stash = path_out;
           spawn(command, stdin, fd_out, stderr );
-          cb();
+          processNextCommand();
         }
         else {
-          openCurrent( function(fd_in) {
-            current = path_out;
+          openStash( function(fd_in) {
+            stash = path_out;
             spawn(command, fd_in, fd_out, stderr );
-            cb();
+            processNextCommand();
           });
         }
       });
     }
+    else if (typeof stash !== 'undefined') {
+      openStash( function(fd_in) { 
+        spawn(command, fd_in, stdout, stderr );
+      });
+    }
+    else {
+      spawn(command, stdin, stdout, stderr );
+    }
   }
 
   function spawn(command, stdin, stdout, stderr) {
-    //var child = cp.spawn( command, [], { stdio: 'inherit' } );
     var child = cp.spawn( 
         command, 
         { stdio: [stdin, stdout, stderr] } 
       );
   }
 
-  function openCurrent(cb) {
-    assert(typeof current !== 'undefined');
-    fs.open(current, 'r', function(err, fd_in) {
+  function openStash(cb) {
+    assert(typeof stash !== 'undefined');
+    fs.open(stash, 'r', function(err, fd_in) {
       if (err) throw err;
       cb(fd_in);
     });
