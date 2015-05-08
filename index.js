@@ -16,37 +16,53 @@ function Mule(pack, stdin, stdout, stderr) {
 
   var current;
 
-  pack.forEach(function(exec, index) {
-    if (index == exec.length - 1) {
+  process.stdin.pause(); 
+  process.stdin.setRawMode( false );
+  processNextCommand();
+
+  function processNextCommand() {
+    assert(pack.length);
+    var command = pack[0];
+    pack.splice(0,1);
+
+    if (pack.length) {
+      execLine(command, processNextCommand );
+    }
+    else {
       if (typeof current === 'undefined') {
-        spawn(exec, stdin, stdout, stderr );
+        spawn(command, stdin, stdout, stderr );
       }
       else {
         openCurrent( function(fd_in) { 
-          spawn(exec, fd_in, stdout, stderr );
+          spawn(command, fd_in, stdout, stderr );
         });
       }
     }
-    else {
+
+    function execLine(command, cb) {
       openTempFile(function(fd_out, path_out) {
         if (typeof current === 'undefined') {
           current = path_out;
-          spawn(exec, stdin, fd_out, stderr );
+          spawn(command, stdin, fd_out, stderr );
+          cb();
         }
         else {
           openCurrent( function(fd_in) {
             current = path_out;
-            spawn(exec, fd_in, fd_out, stderr );
+            spawn(command, fd_in, fd_out, stderr );
+            cb();
           });
         }
       });
     }
-  });
-  
+  }
+
   function spawn(command, stdin, stdout, stderr) {
-    
-    var child = cp.spawn( command, [], { stdio: 'inherit' } );
-    //var child = cp.spawn( "pwd", [] );//, { stdio: [stdin, stdout, stderr] } );
+    //var child = cp.spawn( command, [], { stdio: 'inherit' } );
+    var child = cp.spawn( 
+        command, 
+        { stdio: [stdin, stdout, stderr] } 
+      );
   }
 
   function openCurrent(cb) {

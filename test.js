@@ -14,7 +14,7 @@ assert( typeof Expector === 'function' );
      //  	process.stdin.setRawMode( false );
 
 		mule = new Mule(
-			['ls'], 
+			['ls', 'less'], 
 			process.stdin, 
 			process.stdout, 
 			process.stderr ); 
