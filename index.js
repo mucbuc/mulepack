@@ -4,10 +4,7 @@ events:
 */ 
 
 var assert = require( 'assert' )
-  , cp = require( 'child_process' )
-  , fs = require( 'fs' )
-  , stream = require( 'stream' )
-  , tmp = require( 'tmp' );
+  , Utils = require( './utils.js' );
 
 function Mule(pack, stdin, stdout, stderr) {
   
@@ -16,64 +13,47 @@ function Mule(pack, stdin, stdout, stderr) {
 
   var stash;
 
-  process.stdin.pause(); 
-  process.stdin.setRawMode( false );
-  processNextCommand();
+  processCommand();
 
-  function processNextCommand() {
+  function processCommand() {
+    
     assert(pack.length);
+    
     var command = pack[0];
     pack.splice(0,1);
 
     if (pack.length) {
-      openTempFile(function(fd_out, path_out) {
+      pipeToTempFile(command); 
+    }
+    else if (typeof stash !== 'undefined') {
+      pipeFromTempFile(command); 
+    }
+    else {
+      Utils.spawn(command, stdin, stdout, stderr );
+    }
+
+    function pipeFromTempFile(command) {
+      Utils.openFileIn( stash, function(fd_in) { 
+        Utils.spawn(command, fd_in, stdout, stderr );
+      });
+    }
+
+    function pipeToTempFile(command) {
+      Utils.openTempFileOut(function(fd_out, path_out) {
         if (typeof stash === 'undefined') {
           stash = path_out;
-          spawn(command, stdin, fd_out, stderr );
-          processNextCommand();
+          Utils.spawn(command, stdin, fd_out, stderr );
+          processCommand();
         }
         else {
-          openStash( function(fd_in) {
+          Utils.openFileIn( stash, function(fd_in) {
             stash = path_out;
-            spawn(command, fd_in, fd_out, stderr );
-            processNextCommand();
+            Utils.spawn(command, fd_in, fd_out, stderr );
+            processCommand();
           });
         }
       });
     }
-    else if (typeof stash !== 'undefined') {
-      openStash( function(fd_in) { 
-        spawn(command, fd_in, stdout, stderr );
-      });
-    }
-    else {
-      spawn(command, stdin, stdout, stderr );
-    }
-  }
-
-  function spawn(command, stdin, stdout, stderr) {
-    var child = cp.spawn( 
-        command, 
-        { stdio: [stdin, stdout, stderr] } 
-      );
-  }
-
-  function openStash(cb) {
-    assert(typeof stash !== 'undefined');
-    fs.open(stash, 'r', function(err, fd_in) {
-      if (err) throw err;
-      cb(fd_in);
-    });
-  }
-
-  function openTempFile(cb) {
-    tmp.file( function( err, path ) {
-      if (err) throw err;
-      fs.open(path, 'a+', function(err, fd) {
-        if (err) throw err;
-        cb(fd, path);
-      });
-    });
   }
 }
 

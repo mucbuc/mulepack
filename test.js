@@ -7,14 +7,14 @@ var assert = require( 'assert' )
 assert( typeof Mule !== 'undefined' );
 assert( typeof Expector === 'function' );
 
-// suite( 'mule', function() {
+var mule;
 
-	var mule;
-	    // process.stdin.pause(); 
-     //  	process.stdin.setRawMode( false );
+process.stdin.pause(); 
+process.stdin.setRawMode( false );
 
-		mule = new Mule(
-			['ls', 'less'], 
-			process.stdin, 
-			process.stdout, 
-			process.stderr ); 
+mule = new Mule(
+		['ls', 'less'], 
+		process.stdin, 
+		process.stdout, 
+		process.stderr 
+	); 
