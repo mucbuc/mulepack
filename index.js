@@ -1,130 +1,78 @@
-/*
-events: 
-  child_error, error_read, read, write, exit, close
-*/ 
-
 var assert = require( 'assert' )
-  , Utils = require( './utils.js' );
+  , Connector = require( './connector.js' )
+  , cp = require( 'child_process' );
 
-function Mule(pack, stdin, stdout, stderr) {
+assert( typeof Connector === 'function' );
+
+function mule(pack, options, done) {
+
+  var connector;
+  assert( Array.isArray(pack) && pack.length > 0 );
   
-  assert( Array.isArray(pack) );
-  assert( pack.length > 0 );
-
-  var stash;
-
-  processCommand();
+  if (typeof options === 'undefined') {
+    options = {};
+  }
+  
+  init(options, function() {
+    connector = new Connector( options );
+    processCommand();
+  });
 
   function processCommand() {
     
+    var command;
     assert(pack.length);
     
-    var command = pack[0];
+    command = pack[0][0];
+    args = pack[0].slice(1);
     pack.splice(0,1);
 
     if (pack.length) {
-      pipeToTempFile(command); 
+      connector.pipeIn(function(context) {
+        spawn( command, args, context );
+        processCommand();
+      });
     }
-    else if (typeof stash !== 'undefined') {
-      pipeFromTempFile(command); 
+    else if (connector.isActive()) {
+      connector.pipeOut(function(context) {
+        done( spawn( command, args, context ) );
+      });
     }
     else {
-      Utils.spawn(command, stdin, stdout, stderr );
+      done( spawn( command, args, options ) );
+    }
+  }
+
+  function spawn(command, args, context) {
+    var opt = {};
+    for(var i in options) {
+      if (i == 'stdio') {
+        opt.stdio = [context.stdin, context.stdout, context.stderr];
+      }
+      else {
+        opt[i] = options[i];
+      }
+    }
+    
+    return cp.spawn( command, args, opt );
+  }
+
+  function init(options, cb) {
+
+    if (!options.hasOwnProperty('cwd')) {
+      options.cwd = process.cwd();
     }
 
-    function pipeFromTempFile(command) {
-      Utils.openFileIn( stash, function(fd_in) { 
-        Utils.spawn(command, fd_in, stdout, stderr );
-      });
-    }
-
-    function pipeToTempFile(command) {
-      Utils.openTempFileOut(function(fd_out, path_out) {
-        if (typeof stash === 'undefined') {
-          stash = path_out;
-          Utils.spawn(command, stdin, fd_out, stderr );
-          processCommand();
-        }
-        else {
-          Utils.openFileIn( stash, function(fd_in) {
-            stash = path_out;
-            Utils.spawn(command, fd_in, fd_out, stderr );
-            processCommand();
-          });
-        }
-      });
-    }
+    ['stdin', 'stdout', 'stderr']
+    .forEach(function(name, index, names) {
+      if (!options.hasOwnProperty(name)) {
+        options[name] = process[name];
+      }
+      if (index == names.length - 1) {
+        cb();
+      }
+    });
   }
 }
 
-module.exports = Mule;
-
-
-    // && result.hasOwnProperty('stdin')
-
-    // openReadStreams(context.stdin, function(fd) {
-    //   result.stdin = fd;
-    //   checkIfDone();
-    // });
-
-    // function openReadStreams(path, cb) {
-    //   assert( typeof path !== 'undefined' );
-    //   fs.open(path, 'r', function(err, fd) {
-    //     if (err) throw err;
-    //     cb(fd);
-    //   });
-    // }
-
-/*
-          var child = cp.spawn( 
-            args.cmd, 
-            args.args, 
-            { 
-              cwd: args.cwd, 
-              stdio: [ 'pipe', 'pipe', 'pipe' ] 
-            });
-          
-          // error event
-          child.on( 'error', function(data) {
-            emitter.emit( 'child_error', data );
-          } );
-
-          // error stream
-          child.stderr.on( 'data', function( data ) {
-            emitter.emit( 'stderr', data );
-          } );
-
-          // output
-          child.stdout.on( 'data', function( data ) {
-            emitter.emit( 'stdout', data );
-          } );
-
-          // input
-          emitter.on( 'stdin', onWrite );
-
-          // exit
-          child.on( 'exit', function(code, signal) { 
-            emitter.emit( 'exit', code, signal );
-          } );
-
-          // close
-          child.on( 'close', function(code, signal) { 
-            emitter.removeListener( 'stdin', onWrite );
-            emitter.removeListener( 'kill', onKill );
-            emitter.emit( 'close', code, signal );
-          } );
-
-          // kill
-          emitter.on( 'kill', onKill );
-
-          function onKill() {
-            child.kill();
-          }
-
-          function onWrite( data ) {
-            child.stdin.write( data );
-          }
-
-
-exports.Processor = Processor;
-*/ 
+module.exports = mule;
