@@ -1,0 +1,25 @@
+{
+  "name": "mulepack",
+  "version": "0.0.2",
+  "description": "workhorse",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -u tdd --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mucbuc/mulepack.git"
+  },
+  "author": "mark busenitz",
+  "license": "GPL",
+  "bugs": {
+    "url": "https://github.com/mucbuc/mulepack/issues"
+  },
+  "homepage": "https://github.com/mucbuc/mulepack",
+  "devDependencies": {
+    "expector": "*"
+  },
+  "dependencies": {
+    "tmp": "*"
+  }
+}
