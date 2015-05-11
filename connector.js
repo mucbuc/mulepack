@@ -14,35 +14,39 @@ function Connector(options) {
     return typeof tempFile !== 'undefined';
   }
 
-  this.pipeOut = function(cb) {
-    return openFileIn( tempFile )
-    .then( function(fd_in) {
-      cb({ stdin: fd_in, stdout: options.stdout, stderr: options.stderr }); 
-    } )
-    .catch( function(err) {
-      throw err;
-    } ); 
+  this.pipeOut = function() {
+    return new Promise(function(reslove, reject) {
+      openFileIn( tempFile )
+      .then( function(fd_in) {
+        resolve({ stdin: fd_in, stdout: options.stdout, stderr: options.stderr }); 
+      } )
+      .catch( function(err) {
+        reject( err );
+      } ); 
+    }); 
   }
 
-  this.pipeIn = function(cb) {
-    return openTempFileOut()
-    .then( function(fd_out, path_out) {
-      if (typeof tempFile === 'undefined') {
-        spawn( options.stdin );
-      }
-      else {
-        openFileIn( tempFile, function(fd_in) {
-          spawn( fd_in );
-        });
-      }
+  this.pipeIn = function() {
+    return new Promise(function(resolve, reject) {
+      openTempFileOut()
+      .then( function(fd_out, path_out) {
+        if (typeof tempFile === 'undefined') {
+          spawn( options.stdin );
+        }
+        else {
+          openFileIn( tempFile, function(fd_in) {
+            spawn( fd_in );
+          });
+        }
 
-      function spawn(stdin) {
-        tempFile = path_out;
-        cb({ stdin: stdin, stdout: fd_out, stderr: options.stderr });
-      }
-    })
-    .catch( function(err) {
-      throw err;
+        function spawn(stdin) {
+          tempFile = path_out;
+          resolve({ stdin: stdin, stdout: fd_out, stderr: options.stderr });
+        }
+      })
+      .catch( function(err) {
+        reject(err);
+      });
     });
   }
 

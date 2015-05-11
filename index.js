@@ -28,14 +28,19 @@ function mule(pack, options, done) {
     pack.splice(0,1);
 
     if (pack.length) {
-      connector.pipeIn(function(context) {
+      connector.pipeIn()
+      .then(function(context) {
         spawn( command, args, context );
         processCommand();
       });
     }
     else if (connector.isActive()) {
-      connector.pipeOut(function(context) {
+      connector.pipeOut()
+      .then(function(context) {
         done( spawn( command, args, context ) );
+      })
+      .catch(function(err) {
+        throw(err);
       });
     }
     else {
