@@ -19,14 +19,16 @@ suite( 'mule', function() {
   });
 
   test( 'stdout option with single pipe', function() {
-    mule( [['ls']], { stdout: 'pipe' }, function(child) {
+    mule( [['ls']], { stdout: 'pipe' })
+    .then( function(child) {
       assert( typeof child !== 'undefined' );
       assert( child.hasOwnProperty( 'stdout' ) ); 
     });
   });
 
   test( 'stdout option with multiple pipe', function() {
-    mule( [['ls'], ['less']], { stdout: 'pipe' }, function(child) {
+    mule( [['ls'], ['less']], { stdout: 'pipe' })
+    .then( function(child) {
       assert( typeof child !== 'undefined' );
       assert( child.hasOwnProperty( 'stdout' ) ); 
     } );
@@ -38,7 +40,8 @@ suite( 'mule', function() {
           stdout: 'pipe'
     };
 
-    mule( [['ls']], options, function(child) {
+    mule( [['ls']], options )
+    .then(function(child) {
       var result = '';
       child.stdout.on( 'data', function(data) {
         result += data.toString();
@@ -62,8 +65,8 @@ suite( 'mule', function() {
         stdout: 'pipe',
         stdin: 'pipe',
         stderr: 'pipe'
-      }, 
-      function(child) {
+      })
+    .then( function(child) {
       
         child.stderr.on( 'data', function(data) {
           expector.emit( 'stderr' );
@@ -76,7 +79,6 @@ suite( 'mule', function() {
         child.on( 'close', function() {
           process.nextTick( done );
         });
-
       });
   });
 
@@ -92,20 +94,20 @@ suite( 'mule', function() {
         stdout: 'pipe',
         stdin: 'pipe',
         stderr: 'pipe'
-      },
-      function(child) {
-        child.stderr.on( 'data', function(data) {
-          expector.emit( 'stderr' );
-        });
-
-        child.stdout.on( 'data', function(data) {
-          expector.emit( 'stdout' );
-        });
-
-        child.on( 'close', function() {
-          process.nextTick( done );
-        });
+      })
+    .then( function(child) {
+      child.stderr.on( 'data', function(data) {
+        expector.emit( 'stderr' );
       });
+
+      child.stdout.on( 'data', function(data) {
+        expector.emit( 'stdout' );
+      });
+
+      child.on( 'close', function() {
+        process.nextTick( done );
+      });
+    });
   });
 
 /*
