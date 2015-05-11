@@ -1,6 +1,7 @@
 var assert = require( 'assert' )  
   , fs = require( 'fs' )
-  , tmp = require( 'tmp' );
+  , tmp = require( 'tmp' )
+  , Promise = require( 'promise' );
 
 function Connector(options) {
   var tempFile;
@@ -14,13 +15,18 @@ function Connector(options) {
   }
 
   this.pipeOut = function(cb) {
-    openFileIn( tempFile, function(fd_in) { 
-      cb({ stdin: fd_in, stdout: options.stdout, stderr: options.stderr });
-    });
+    return openFileIn( tempFile )
+    .then( function(fd_in) {
+      cb({ stdin: fd_in, stdout: options.stdout, stderr: options.stderr }); 
+    } )
+    .catch( function(err) {
+      throw err;
+    } ); 
   }
 
   this.pipeIn = function(cb) {
-    openTempFileOut(function(fd_out, path_out) {
+    return openTempFileOut()
+    .then( function(fd_out, path_out) {
       if (typeof tempFile === 'undefined') {
         spawn( options.stdin );
       }
@@ -34,24 +40,34 @@ function Connector(options) {
         tempFile = path_out;
         cb({ stdin: stdin, stdout: fd_out, stderr: options.stderr });
       }
+    })
+    .catch( function(err) {
+      throw err;
     });
   }
 
-  function openFileIn(path, cb) {
+  function openFileIn(path) {
     assert(typeof path !== 'undefined');
-    fs.open(path, 'r', function(err, fd_in) {
-      if (err) throw err;
-      cb(fd_in);
-    });
+    return new Promise(function(resolve, reject) {
+        fs.open(path, 'r', function(err, fd_in) {
+          if (err) reject( err );
+          else resolve(fd_in);
+        });
+      });
   }
 
-  function openTempFileOut(cb) {
-    tmp.file( function( err, path ) {
-      if (err) throw err;
-      fs.open(path, 'a+', function(err, fd) {
-        if (err) throw err;
-        cb(fd, path);
-      });
+  function openTempFileOut() {
+    return new Promise(function(resolve, reject) {
+      tmp.file( function( err, path ) {
+          if (err) reject( err );
+          else {
+            fs.open(path, 'a+', function(err, fd) {
+              if (err) reject( err );
+              resolve(fd, path);
+            });
+          }
+        });
+
     });
   }
 

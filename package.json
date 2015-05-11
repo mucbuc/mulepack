@@ -20,6 +20,8 @@
     "expector": "*"
   },
   "dependencies": {
-    "tmp": "*"
+    "tmp": "*",
+    "mocha": "*",
+    "promise": "*"
   }
 }
