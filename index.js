@@ -7,7 +7,7 @@ assert( typeof Connector === 'function' );
 function mule(pack, options, done) {
 
   var connector;
-  assert( Array.isArray(pack) && pack.length > 0 );
+  assert( Array.isArray(pack) );
   
   if (typeof options === 'undefined') {
     options = {};
@@ -27,7 +27,10 @@ function mule(pack, options, done) {
     args = pack[0].slice(1);
     pack.splice(0,1);
 
-    if (pack.length) {
+    if (typeof command === "undefined") {
+      done();
+    }
+    else if (pack.length) {
       connector.pipeIn(function(context) {
         spawn( command, args, context );
         processCommand();
