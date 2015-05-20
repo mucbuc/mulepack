@@ -1,50 +1,62 @@
 var assert = require( 'assert' )
   , Connector = require( './connector.js' )
-  , cp = require( 'child_process' );
+  , cp = require( 'child_process' )
+  , Promise = require( 'promise' );
 
 assert( typeof Connector === 'function' );
 
 function mule(pack, options, done) {
 
-  var connector;
-  assert( Array.isArray(pack) );
-  
-  if (typeof options === 'undefined') {
-    options = {};
-  }
-  
-  init(options, function() {
-    connector = new Connector( options );
-    processCommand();
+  return new Promise(function(resolve, reject) {
+
+    var connector;
+    assert( Array.isArray(pack) );
+    
+    if (typeof options === 'undefined') {
+      options = {};
+    }
+    
+    init(options, function() {
+      connector = new Connector( options );
+      processCommand();
+    });
+
+    function processCommand() {
+      
+      var command;
+      assert(pack.length);
+      
+      command = pack[0][0];
+      args = pack[0].slice(1);
+      pack.splice(0,1);
+
+      if (typeof command === "undefined") {
+        resolve();
+      }
+      else if (pack.length) {
+        connector.pipeIn()
+        .then(function(context) {
+          spawn( command, args, context );
+          processCommand();
+        })
+        .catch(function(err) {
+          reject(err);
+        });
+      }
+      else if (connector.isActive()) {
+        connector.pipeOut()
+        .then(function(context) {
+          resolve( spawn( command, args, context ) );
+        })
+        .catch(function(err) {
+          reject(err);
+        });
+      }
+      else {
+        resolve( spawn( command, args, options ) );
+      }
+    }
   });
-
-  function processCommand() {
-    
-    var command;
-    assert(pack.length);
-    
-    command = pack[0][0];
-    args = pack[0].slice(1);
-    pack.splice(0,1);
-
-    if (typeof command === "undefined") {
-      done();
-    }
-    else if (pack.length) {
-      connector.pipeIn(function(context) {
-        spawn( command, args, context );
-        processCommand();
-      });
-    }
-    else if (connector.isActive()) {
-      connector.pipeOut(function(context) {
-        done( spawn( command, args, context ) );
-      });
-    }
-    else {
-      done( spawn( command, args, options ) );
-    }
-  }
 
   function spawn(command, args, context) {
     var opt = {};
