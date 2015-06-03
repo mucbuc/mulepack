@@ -110,7 +110,6 @@ suite( 'mule', function() {
     });
   });
 
-/*
   test( 'check stdin', function(done) {
     var options = {
           controller: expector,
@@ -118,23 +117,17 @@ suite( 'mule', function() {
           stdin: 'pipe',
           env: process.env
         };
-    options.env.PATH += ':/Users/markymark/work/mulepack/test/bin';
-    expector.expect( 'exit' );
+    options.env.PATH += ':' + path.join( __dirname, 'bin' );
+
     mule( 
       [['dummy_read']],
-      options, 
-      function(child) {
+      options )
+    .then( function(child) {
         child.stdin.write('a\n');
         child.on( 'close', function() {
-          setTimeout( done, 1000 );
-
-          //process.nextTick( done );
+          process.nextTick( done );
         });
-        child.on( 'exit', function() {
-          expector.emit( 'exit' );
-        });
-      });
+    });
   });
-*/
 
 });
