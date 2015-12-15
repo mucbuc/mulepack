@@ -68,7 +68,7 @@ function mule(pack, options, done) {
         opt[i] = options[i];
       }
     }
-    
+    //console.log( 'spawn', opt );
     return cp.spawn( command, args, opt );
   }
 

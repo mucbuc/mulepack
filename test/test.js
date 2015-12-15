@@ -16,7 +16,7 @@ function test(name, cb) {
     cb(expector);
   }); 
 }
-
+/*
 test( 'stdout option with single pipe', function(expector) {
   
   expector.expect( 'object' );
@@ -35,6 +35,29 @@ test( 'stdout option with single pipe', function(expector) {
       expector.check(); 
     });
   });
+});
+*/
+
+test( 'less with path argument', function(expector) {
+  
+  expector.expect( 'object' );
+  expector.expect( true );
+  expector.expect( 'data', 'hello' );
+
+  mule( [['less', 'sample/test.txt']], { stdout: 'pipe' })
+  .then( function(child) {
+    
+    expector.emit( typeof child );
+    expector.emit( child.hasOwnProperty( 'stdout' ) ); 
+    
+    child.stdout.on( 'data', function(data) {
+      expector.emit( 'data', data.toString() );
+    });
+
+    child.on( 'close', function() {
+      expector.check(); 
+    });
+  } );
 });
 
 /*
@@ -60,7 +83,7 @@ test( 'stdout option with multiple pipe', function(expector) {
     });
   } );
 });
-*/
+
 
 test( 'cwd option', function(expector) {
   var options = { 
@@ -167,3 +190,4 @@ test( 'check stdin', function(expector) {
       });
   });
 });
+*/ 
