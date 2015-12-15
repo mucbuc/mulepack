@@ -17,11 +17,11 @@
   },
   "homepage": "https://github.com/mucbuc/mulepack",
   "devDependencies": {
-    "expector": "*"
+    "expector": "*",
+    "tape": "*"
   },
   "dependencies": {
     "tmp": "*",
-    "mocha": "*",
     "promise": "*"
   }
 }
