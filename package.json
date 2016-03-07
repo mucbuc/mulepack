@@ -4,7 +4,7 @@
   "description": "workhorse",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -u tdd --recursive"
+    "test": "tape test/test.js"
   },
   "repository": {
     "type": "git",

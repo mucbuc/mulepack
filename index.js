@@ -23,7 +23,8 @@ function mule(pack, options, done) {
 
     function processCommand() {
       
-      var command;
+      var command
+        , args;
       assert(pack.length);
       
       command = pack[0][0];
@@ -68,7 +69,6 @@ function mule(pack, options, done) {
         opt[i] = options[i];
       }
     }
-    //console.log( 'spawn', opt );
     return cp.spawn( command, args, opt );
   }
 

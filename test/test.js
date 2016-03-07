@@ -4,21 +4,15 @@ var assert = require( 'assert' )
   , Expector = require( 'expector' ).SeqExpector
   , path = require( 'path' )
   , mule = require( '../index.js' )
-  , testImpl = require( 'tape' )
+  , test = require( 'tape' )
   , util = require( 'util' );
 
 assert( typeof mule === 'function' );
 assert( typeof Expector === 'function' );
 
-function test(name, cb) {
-  testImpl(name, function(t) {
-    var expector = new Expector(t);
-    cb(expector);
-  }); 
-}
-/*
-test( 'stdout option with single pipe', function(expector) {
+test( 'stdout option with single pipe', function(t) {
   
+  var expector = new Expector(t);
   expector.expect( 'object' );
   expector.expect( 'data' );
   
@@ -36,9 +30,10 @@ test( 'stdout option with single pipe', function(expector) {
     });
   });
 });
-*/
 
-test( 'less with path argument', function(expector) {
+test( 'less with path argument', function(t) {
+
+  var expector = new Expector(t);
   
   expector.expect( 'object' );
   expector.expect( true );
