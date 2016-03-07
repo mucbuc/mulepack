@@ -66,7 +66,7 @@ function mule(pack, options, done) {
         opt.stdio = [context.stdin, context.stdout, context.stderr];
       }
       else {
-        opt[i] = options[i];
+        opt[i] = context[i];
       }
     }
     return cp.spawn( command, args, opt );

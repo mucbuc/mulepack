@@ -29,7 +29,7 @@ function Connector(options) {
   this.pipeIn = function() {
     return new Promise(function(resolve, reject) {
       openTempFileOut()
-      .then( function(fd_out, path_out) {
+      .then( function(openFile) {
         if (typeof tempFile === 'undefined') {
           spawn( options.stdin );
         }
@@ -40,8 +40,8 @@ function Connector(options) {
         }
 
         function spawn(stdin) {
-          tempFile = path_out;
-          resolve({ stdin: stdin, stdout: fd_out, stderr: options.stderr });
+          tempFile = openFile.path;
+          resolve({ stdin: stdin, stdout: openFile.descriptor, stderr: options.stderr });
         }
       })
       .catch( function(err) {
@@ -67,7 +67,7 @@ function Connector(options) {
           else {
             fs.open(path, 'a+', function(err, fd) {
               if (err) reject( err );
-              resolve(fd, path);
+              resolve( { 'descriptor': fd, 'path': path } );
             });
           }
         });
