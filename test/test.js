@@ -55,8 +55,7 @@ test( 'less with path argument', function(t) {
   } );
 });
 
-/*
-test( 'stdout option with multiple pipe', function(expector) {
+test.skip( 'stdout option with multiple pipe', function(expector) {
   
   expector.expect( 'object' );
   expector.expect( true );
@@ -79,8 +78,10 @@ test( 'stdout option with multiple pipe', function(expector) {
   } );
 });
 
+test( 'cwd option', function(t) {
 
-test( 'cwd option', function(expector) {
+  var expector = new Expector(t);
+
   var options = { 
         cwd: path.join( __dirname, 'sample' ),
         stdout: 'pipe'
@@ -102,7 +103,7 @@ test( 'cwd option', function(expector) {
   } );
 });
 
-test( 'check stderr', function(expector) {
+test.skip( 'check stderr', function(expector) {
   
   expector.expectNot( 'stdout' );
   expector.expect( 'stderr' );
@@ -131,7 +132,7 @@ test( 'check stderr', function(expector) {
     });
 });
 
-test( 'check stdout', function(expector) {
+test.skip( 'check stdout', function(expector) {
 
   expector.expectNot( 'stderr' );
   expector.expect( 'stdout' );
@@ -159,7 +160,10 @@ test( 'check stdout', function(expector) {
   });
 });
 
-test( 'check stdin', function(expector) {
+test( 'check stdin', function(t) {
+  
+  var expector = new Expector(t);
+  
   var options = {
         controller: expector,
         stdout: 'pipe',
@@ -185,4 +189,3 @@ test( 'check stdin', function(expector) {
       });
   });
 });
-*/ 
