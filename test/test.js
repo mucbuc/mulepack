@@ -103,8 +103,9 @@ test( 'cwd option', function(t) {
   } );
 });
 
-test.skip( 'check stderr', function(expector) {
+test( 'check stderr', function(t) {
   
+  var expector = new Expector(t);
   expector.expectNot( 'stdout' );
   expector.expect( 'stderr' );
   
@@ -132,8 +133,9 @@ test.skip( 'check stderr', function(expector) {
     });
 });
 
-test.skip( 'check stdout', function(expector) {
+test( 'check stdout', function(t) {
 
+  var expector = new Expector(t);
   expector.expectNot( 'stderr' );
   expector.expect( 'stdout' );
 
