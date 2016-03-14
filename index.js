@@ -7,11 +7,12 @@ assert( typeof Connector === 'function' );
 
 function mule(pack, options, done) {
 
+  assert( Array.isArray(pack) );
+
   return new Promise(function(resolve, reject) {
 
     var connector;
-    assert( Array.isArray(pack) );
-    
+      
     if (typeof options === 'undefined') {
       options = {};
     }
@@ -37,6 +38,13 @@ function mule(pack, options, done) {
       else if (pack.length) {
         connector.pipeIn()
         .then(function(context) {
+          
+          if (context.hasOwnProperty('stdin')) 
+          {
+            context.stdin.setRawMode( true );
+            context.stdin.resume(); 
+          }
+
           spawn( command, args, context );
           processCommand();
         })
@@ -48,6 +56,8 @@ function mule(pack, options, done) {
         connector.pipeOut()
         .then(function(context) {
           resolve( spawn( command, args, context ) );
+
+          assert( typeof context.stdout === 'undefined');
         })
         .catch(function(err) {
           reject(err);
@@ -60,7 +70,8 @@ function mule(pack, options, done) {
   });
 
   function spawn(command, args, context) {
-    var opt = {};
+    var opt = {}
+      , child; 
     for(var i in options) {
       if (i == 'stdio') {
         opt.stdio = [context.stdin, context.stdout, context.stderr];
@@ -69,7 +80,15 @@ function mule(pack, options, done) {
         opt[i] = context[i];
       }
     }
-    return cp.spawn( command, args, opt );
+    child = cp.spawn( command, args, opt );
+    if (child.hasOwnProperty('stdout')) {
+      child.stdout.resume(); 
+    }
+
+    if (child.hasOwnProperty('stdin')) {
+      child.stdin.resume(); 
+    }
+    return child; 
   }
 
   function init(options, cb) {

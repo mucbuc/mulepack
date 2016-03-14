@@ -15,7 +15,7 @@ function Connector(options) {
   }
 
   this.pipeOut = function() {
-    return new Promise(function(reslove, reject) {
+    return new Promise(function(resolve, reject) {
       openFileIn( tempFile )
       .then( function(fd_in) {
         resolve({ stdin: fd_in, stdout: options.stdout, stderr: options.stderr }); 

@@ -55,7 +55,7 @@ test( 'less with path argument', function(t) {
   } );
 });
 
-test( 'stdout option with multiple pipe', function(t) {
+test.only( 'stdout option with multiple pipe', function(t) {
   
   var expector = new Expector(t);
   expector.expect( 'object' );
