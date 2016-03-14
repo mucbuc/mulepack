@@ -37,13 +37,6 @@ function mule(pack, options, done) {
       else if (pack.length) {
         connector.pipeIn()
         .then(function(context) {
-          
-          if (context.hasOwnProperty('stdin')) 
-          {
-            context.stdin.setRawMode( true );
-            context.stdin.resume(); 
-          }
-
           spawn( command, args, context );
           processCommand();
         })
