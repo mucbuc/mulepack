@@ -1,7 +1,6 @@
 var assert = require( 'assert' )
   , Connector = require( './connector.js' )
-  , cp = require( 'child_process' )
-  , Promise = require( 'promise' );
+  , cp = require( 'child_process' );
 
 assert( typeof Connector === 'function' );
 

@@ -1,7 +1,6 @@
 var assert = require( 'assert' )  
   , fs = require( 'fs' )
-  , tmp = require( 'tmp' )
-  , Promise = require( 'promise' );
+  , tmp = require( 'tmp' );
 
 function Connector(options) {
   var tempFile;
