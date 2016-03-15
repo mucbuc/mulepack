@@ -1,7 +1,6 @@
 var assert = require( 'assert' )  
   , fs = require( 'fs' )
-  , tmp = require( 'tmp' )
-  , Promise = require( 'promise' );
+  , tmp = require( 'tmp' );
 
 function Connector(options) {
   var tempFile;
@@ -15,7 +14,7 @@ function Connector(options) {
   }
 
   this.pipeOut = function() {
-    return new Promise(function(reslove, reject) {
+    return new Promise(function(resolve, reject) {
       openFileIn( tempFile )
       .then( function(fd_in) {
         resolve({ stdin: fd_in, stdout: options.stdout, stderr: options.stderr }); 

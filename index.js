@@ -1,17 +1,17 @@
 var assert = require( 'assert' )
   , Connector = require( './connector.js' )
-  , cp = require( 'child_process' )
-  , Promise = require( 'promise' );
+  , cp = require( 'child_process' );
 
 assert( typeof Connector === 'function' );
 
 function mule(pack, options, done) {
 
+  assert( Array.isArray(pack) );
+
   return new Promise(function(resolve, reject) {
 
     var connector;
-    assert( Array.isArray(pack) );
-    
+      
     if (typeof options === 'undefined') {
       options = {};
     }
@@ -48,6 +48,8 @@ function mule(pack, options, done) {
         connector.pipeOut()
         .then(function(context) {
           resolve( spawn( command, args, context ) );
+
+          assert( typeof context.stdout === 'undefined');
         })
         .catch(function(err) {
           reject(err);
@@ -60,7 +62,7 @@ function mule(pack, options, done) {
   });
 
   function spawn(command, args, context) {
-    var opt = {};
+    var opt = {}; 
     for(var i in options) {
       if (i == 'stdio') {
         opt.stdio = [context.stdin, context.stdout, context.stderr];
@@ -69,7 +71,7 @@ function mule(pack, options, done) {
         opt[i] = context[i];
       }
     }
-    return cp.spawn( command, args, opt );
+    return cp.spawn( command, args, opt ); 
   }
 
   function init(options, cb) {
