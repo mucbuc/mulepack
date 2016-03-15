@@ -62,8 +62,7 @@ function mule(pack, options, done) {
   });
 
   function spawn(command, args, context) {
-    var opt = {}
-      , child; 
+    var opt = {}; 
     for(var i in options) {
       if (i == 'stdio') {
         opt.stdio = [context.stdin, context.stdout, context.stderr];
@@ -72,15 +71,7 @@ function mule(pack, options, done) {
         opt[i] = context[i];
       }
     }
-    child = cp.spawn( command, args, opt );
-    if (child.hasOwnProperty('stdout')) {
-      child.stdout.resume(); 
-    }
-
-    if (child.hasOwnProperty('stdin')) {
-      child.stdin.resume(); 
-    }
-    return child; 
+    return cp.spawn( command, args, opt ); 
   }
 
   function init(options, cb) {

@@ -55,7 +55,7 @@ test( 'less with path argument', function(t) {
   } );
 });
 
-test.skip( 'stdout option with multiple pipe', function(t) {
+test( 'stdout option with multiple pipe', function(t) {
   
   var expector = new Expector(t);
   expector.expect( 'object' );
@@ -71,12 +71,9 @@ test.skip( 'stdout option with multiple pipe', function(t) {
     child.stdout.on( 'data', function(data) {
       
       expector.emit( 'data' );
-
-
-      console.log( '*****', data.toString() );
     });
 
-    child.on( 'exit', function() {
+    child.on( 'close', function() {
       expector.check(); 
     });
   } );
