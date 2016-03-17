@@ -39,7 +39,7 @@ test( 'less with path argument', function(t) {
   expector.expect( true );
   expector.expect( 'data', 'hello' );
 
-  mule( [['less', 'sample/test.txt']], { stdout: 'pipe' })
+  mule( [['less', path.join(__dirname, 'sample/test.txt')]], { stdout: 'pipe' })
   .then( function(child) {
     
     expector.emit( typeof child );
