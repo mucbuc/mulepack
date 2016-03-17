@@ -78,9 +78,6 @@ test( 'stdout option with multiple pipe', function(t) {
       expector.check(); 
     });
     child.stdin.write( 'q' );
-
-    child.kill();
-
     process.nextTick( function() {
       child.kill(); 
     });
