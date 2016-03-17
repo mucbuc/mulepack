@@ -60,23 +60,31 @@ test( 'stdout option with multiple pipe', function(t) {
   var expector = new Expector(t);
   expector.expect( 'object' );
   expector.expect( true );
+  expector.expect( true );
   expector.expect( 'data' );
 
   mule( [['ls'], ['less']], { stdout: 'pipe' })
   .then( function(child) {
-    
+
     expector.emit( typeof child );
     expector.emit( child.hasOwnProperty( 'stdout' ) ); 
+    expector.emit( child.hasOwnProperty( 'stdin' ) ); 
     
     child.stdout.on( 'data', function(data) {
-      
       expector.emit( 'data' );
     });
 
-    child.on( 'close', function() {
+    child.on( 'close', () => {
       expector.check(); 
     });
-  } );
+    child.stdin.write( 'q' );
+
+    child.kill();
+
+    process.nextTick( function() {
+      child.kill(); 
+    });
+  });
 });
 
 test( 'cwd option', function(t) {
