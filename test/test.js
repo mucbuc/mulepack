@@ -168,7 +168,7 @@ test( 'check stdout', (t) => {
   });
 });
 
-test( 'check stdin', function(t) {
+test( 'check stdin', (t) => {
   
   var expector = new Expector(t);
   
