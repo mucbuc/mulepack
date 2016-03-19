@@ -13,8 +13,10 @@ assert( typeof Expector === 'function' );
 test( 'stdout option with single pipe', (t) => {
   
   var expector = new Expector(t);
-  expector.expect( 'object' );
-  expector.expect( 'data' );
+  
+  expector
+    .expect( 'object' )
+    .expect( 'data' );
   
   mule( [['ls']], { stdout: 'pipe' })
   .then( (child) => {
@@ -35,9 +37,9 @@ test( 'less with path argument', (t) => {
 
   var expector = new Expector(t);
   
-  expector.expect( 'object' );
-  expector.expect( true );
-  expector.expect( 'data', 'hello' );
+  expector.expect( 'object' )
+    .expect( true )
+    .expect( 'data', 'hello' );
 
   mule( [['less', path.join(__dirname, 'sample/test.txt')]], { stdout: 'pipe' })
   .then( (child) => {
@@ -58,10 +60,10 @@ test( 'less with path argument', (t) => {
 test( 'stdout option with multiple pipe', (t) => {
   
   var expector = new Expector(t);
-  expector.expect( 'object' );
-  expector.expect( true );
-  expector.expect( true );
-  expector.expect( 'data' );
+  expector.expect( 'object' )
+    .expect( true )
+    .expect( true )
+    .expect( 'data' );
 
   mule( [['ls'], ['less']], { stdout: 'pipe' })
   .then( (child) => {
@@ -112,8 +114,8 @@ test( 'cwd option', (t) => {
 test( 'check stderr', (t) => {
   
   var expector = new Expector(t);
-  expector.expectNot( 'stdout' );
-  expector.expect( 'stderr' );
+  expector.expectNot( 'stdout' )
+    .expect( 'stderr' );
   
   mule( 
     [['cat', 'doesNotExist.txt']], 
@@ -142,8 +144,8 @@ test( 'check stderr', (t) => {
 test( 'check stdout', (t) => {
 
   var expector = new Expector(t);
-  expector.expectNot( 'stderr' );
-  expector.expect( 'stdout' );
+  expector.expectNot( 'stderr' )
+    .expect( 'stdout' );
 
   mule( 
     [['ls']], 
