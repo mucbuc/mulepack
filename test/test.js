@@ -10,28 +10,28 @@ var assert = require( 'assert' )
 assert( typeof mule === 'function' );
 assert( typeof Expector === 'function' );
 
-test( 'stdout option with single pipe', function(t) {
+test( 'stdout option with single pipe', (t) => {
   
   var expector = new Expector(t);
   expector.expect( 'object' );
   expector.expect( 'data' );
   
   mule( [['ls']], { stdout: 'pipe' })
-  .then( function(child) {
+  .then( (child) => {
     
     expector.emit( typeof child );
     assert( child.hasOwnProperty( 'stdout' ) );
-    child.stdout.on( 'data', function(data) {
+    child.stdout.on( 'data', (data) => {
       expector.emit( 'data' );
     });
     
-    child.on( 'close', function() {
+    child.on( 'close', () => {
       expector.check(); 
     });
   });
 });
 
-test( 'less with path argument', function(t) {
+test( 'less with path argument', (t) => {
 
   var expector = new Expector(t);
   
@@ -40,22 +40,22 @@ test( 'less with path argument', function(t) {
   expector.expect( 'data', 'hello' );
 
   mule( [['less', path.join(__dirname, 'sample/test.txt')]], { stdout: 'pipe' })
-  .then( function(child) {
+  .then( (child) => {
     
     expector.emit( typeof child );
     expector.emit( child.hasOwnProperty( 'stdout' ) ); 
     
-    child.stdout.on( 'data', function(data) {
+    child.stdout.on( 'data', (data) => {
       expector.emit( 'data', data.toString() );
     });
 
-    child.on( 'close', function() {
+    child.on( 'close', () => {
       expector.check(); 
     });
   } );
 });
 
-test( 'stdout option with multiple pipe', function(t) {
+test( 'stdout option with multiple pipe', (t) => {
   
   var expector = new Expector(t);
   expector.expect( 'object' );
@@ -64,13 +64,13 @@ test( 'stdout option with multiple pipe', function(t) {
   expector.expect( 'data' );
 
   mule( [['ls'], ['less']], { stdout: 'pipe' })
-  .then( function(child) {
+  .then( (child) => {
 
     expector.emit( typeof child );
     expector.emit( child.hasOwnProperty( 'stdout' ) ); 
     expector.emit( child.hasOwnProperty( 'stdin' ) ); 
     
-    child.stdout.on( 'data', function(data) {
+    child.stdout.on( 'data', (data) => {
       expector.emit( 'data' );
     });
 
@@ -78,13 +78,13 @@ test( 'stdout option with multiple pipe', function(t) {
       expector.check(); 
     });
     child.stdin.write( 'q' );
-    process.nextTick( function() {
+    process.nextTick( () => {
       child.kill(); 
     });
   });
 });
 
-test( 'cwd option', function(t) {
+test( 'cwd option', (t) => {
 
   var expector = new Expector(t);
 
@@ -96,20 +96,20 @@ test( 'cwd option', function(t) {
   expector.expect( 'test.txt\n' ); 
 
   mule( [['ls']], options )
-  .then(function(child) {
+  .then( (child) => {
     var result = '';
-    child.stdout.on( 'data', function(data) {
+    child.stdout.on( 'data', (data) => {
       result += data.toString();
     });
 
-    child.on('close', function() {
+    child.on('close', () => {
       expector.emit( result );
       expector.check(); 
     });
   } );
 });
 
-test( 'check stderr', function(t) {
+test( 'check stderr', (t) => {
   
   var expector = new Expector(t);
   expector.expectNot( 'stdout' );
@@ -123,23 +123,23 @@ test( 'check stderr', function(t) {
       stdin: 'pipe',
       stderr: 'pipe'
     })
-  .then( function(child) {
+  .then( (child) => {
     
-      child.stderr.on( 'data', function(data) {
+      child.stderr.on( 'data', (data) => {
         expector.emit( 'stderr' );
       });
 
-      child.stdout.on( 'data', function(data) {
+      child.stdout.on( 'data', (data) => {
         expector.emit( 'stdout' );
       });
 
-      child.on( 'close', function() {
+      child.on( 'close', () => {
         expector.check();
       });
     });
 });
 
-test( 'check stdout', function(t) {
+test( 'check stdout', (t) => {
 
   var expector = new Expector(t);
   expector.expectNot( 'stderr' );
@@ -153,16 +153,16 @@ test( 'check stdout', function(t) {
       stdin: 'pipe',
       stderr: 'pipe'
     })
-  .then( function(child) {
-    child.stderr.on( 'data', function(data) {
+  .then( (child) => {
+    child.stderr.on( 'data', (data) => {
       expector.emit( 'stderr' );
     });
 
-    child.stdout.on( 'data', function(data) {
+    child.stdout.on( 'data', (data) => {
       expector.emit( 'stdout' );
     });
 
-    child.on( 'close', function() {
+    child.on( 'close', () => {
       expector.check(); 
     });
   });
@@ -185,14 +185,14 @@ test( 'check stdin', function(t) {
   mule( 
     [['dummy_read']],
     options )
-  .then( function(child) {
+  .then( (child) => {
       
-      child.stdout.on( 'data', function(data) {
+      child.stdout.on( 'data', (data) => {
         expector.emit( 'data' ); 
       });
 
       child.stdin.write('a\n');
-      child.on( 'close', function() {
+      child.on( 'close', () => {
         expector.check();
       });
   });
