@@ -37,24 +37,19 @@ function mule(pack, options, done) {
       }
       else if (pack.length) {
         connector.pipeIn()
-        .then(function(context) {
+        .then( (context) => {
           spawn( command, args, context );
           processCommand();
         })
-        .catch(function(err) {
-          reject(err);
-        });
+        .catch(reject);
       }
       else if (connector.isActive()) {
         connector.pipeOut()
-        .then(function(context) {
+        .then( (context) => {
           resolve( spawn( command, args, context ) );
-
           assert( typeof context.stdout === 'undefined');
         })
-        .catch(function(err) {
-          reject(err);
-        });
+        .catch(reject);
       }
       else {
         resolve( spawn( command, args, options ) );
