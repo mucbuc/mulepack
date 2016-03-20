@@ -49,7 +49,7 @@ function Connector(options) {
 
   function openFileIn(path) {
     assert(typeof path !== 'undefined');
-    return new Promise(function(resolve, reject) {
+    return new Promise( (resolve, reject) => {
         fs.open(path, 'r', (err, fd_in) => {
           if (err) reject( err );
           else resolve(fd_in);
