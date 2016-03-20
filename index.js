@@ -1,6 +1,7 @@
 var assert = require( 'assert' )
   , Connector = require( './connector.js' )
-  , cp = require( 'child_process' );
+  , cp = require( 'child_process' )
+  , traverse = require( 'traverjs' );
 
 assert( typeof Connector === 'function' );
 
@@ -76,19 +77,13 @@ function mule(pack, options, done) {
 
   function init(options, cb) {
 
-    if (!options.hasOwnProperty('cwd')) {
-      options.cwd = process.cwd();
-    }
-
-    ['stdin', 'stdout', 'stderr']
-    .forEach(function(name, index, names) {
+    traverse( ['cwd', 'stdin', 'stdout', 'stderr'], (name, next) => {
       if (!options.hasOwnProperty(name)) {
         options[name] = process[name];
       }
-      if (index == names.length - 1) {
-        cb();
-      }
-    });
+      next();
+    })
+    .then( cb );
   }
 }
 
