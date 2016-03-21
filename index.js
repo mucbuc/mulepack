@@ -71,14 +71,12 @@ function mule(pack, options, done) {
   }
 
   function init(options, cb) {
-
-    traverse( ['cwd', 'stdin', 'stdout', 'stderr'], (name, next) => {
+    for(var name of ['cwd', 'stdin', 'stdout', 'stderr']) {
       if (!options.hasOwnProperty(name)) {
         options[name] = process[name];
       }
-      next();
-    })
-    .then( cb );
+    }
+    cb();
   }
 }
 
