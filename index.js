@@ -36,24 +36,19 @@ function mule(pack, options, done) {
       }
       else if (pack.length) {
         connector.pipeIn()
-        .then(function(context) {
+        .then( (context) => {
           spawn( command, args, context );
           processCommand();
         })
-        .catch(function(err) {
-          reject(err);
-        });
+        .catch(reject);
       }
       else if (connector.isActive()) {
         connector.pipeOut()
-        .then(function(context) {
+        .then( (context) => {
           resolve( spawn( command, args, context ) );
-
           assert( typeof context.stdout === 'undefined');
         })
-        .catch(function(err) {
-          reject(err);
-        });
+        .catch(reject);
       }
       else {
         resolve( spawn( command, args, options ) );
@@ -75,20 +70,12 @@ function mule(pack, options, done) {
   }
 
   function init(options, cb) {
-
-    if (!options.hasOwnProperty('cwd')) {
-      options.cwd = process.cwd();
-    }
-
-    ['stdin', 'stdout', 'stderr']
-    .forEach(function(name, index, names) {
+    for(var name of ['cwd', 'stdin', 'stdout', 'stderr']) {
       if (!options.hasOwnProperty(name)) {
         options[name] = process[name];
       }
-      if (index == names.length - 1) {
-        cb();
-      }
-    });
+    }
+    cb();
   }
 }
 

@@ -11,29 +11,29 @@ function Connector(options) {
 
   this.isActive = function() {
     return typeof tempFile !== 'undefined';
-  }
+  };
 
   this.pipeOut = function() {
-    return new Promise(function(resolve, reject) {
+    return new Promise( (resolve, reject) => {
       openFileIn( tempFile )
-      .then( function(fd_in) {
+      .then( (fd_in) => {
         resolve({ stdin: fd_in, stdout: options.stdout, stderr: options.stderr }); 
       } )
-      .catch( function(err) {
+      .catch( (err) => {
         reject( err );
       } ); 
     }); 
-  }
+  };
 
   this.pipeIn = function() {
-    return new Promise(function(resolve, reject) {
+    return new Promise( (resolve, reject) => {
       openTempFileOut()
-      .then( function(openFile) {
+      .then( (openFile) => {
         if (typeof tempFile === 'undefined') {
           spawn( options.stdin );
         }
         else {
-          openFileIn( tempFile, function(fd_in) {
+          openFileIn( tempFile, (fd_in) => {
             spawn( fd_in );
           });
         }
@@ -43,28 +43,26 @@ function Connector(options) {
           resolve({ stdin: stdin, stdout: openFile.descriptor, stderr: options.stderr });
         }
       })
-      .catch( function(err) {
-        reject(err);
-      });
+      .catch( reject );
     });
-  }
+  };
 
   function openFileIn(path) {
     assert(typeof path !== 'undefined');
-    return new Promise(function(resolve, reject) {
-        fs.open(path, 'r', function(err, fd_in) {
+    return new Promise( (resolve, reject) => {
+        fs.open(path, 'r', (err, fd_in) => {
           if (err) reject( err );
           else resolve(fd_in);
         });
       });
-  }
+  };
 
   function openTempFileOut() {
-    return new Promise(function(resolve, reject) {
-      tmp.file( function( err, path ) {
+    return new Promise( (resolve, reject) => {
+      tmp.file( ( err, path ) => {
           if (err) reject( err );
           else {
-            fs.open(path, 'a+', function(err, fd) {
+            fs.open(path, 'a+', (err, fd) => {
               if (err) reject( err );
               resolve( { 'descriptor': fd, 'path': path } );
             });
@@ -72,7 +70,7 @@ function Connector(options) {
         });
 
     });
-  }
+  };
 
 }
 
