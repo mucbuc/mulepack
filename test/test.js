@@ -4,13 +4,12 @@ var assert = require( 'assert' )
   , Expector = require( 'expector' ).SeqExpector
   , path = require( 'path' )
   , mule = require( '../index.js' )
-  , test = require( 'tape' )
-  , util = require( 'util' );
+  , test = require( 'tape' );
 
 assert( typeof mule === 'function' );
 assert( typeof Expector === 'function' );
 
-test( 'stdout option with single pipe', (t) => {
+test( 'stdout option with single pipe', t => {
   
   var expector = new Expector(t);
   
@@ -19,11 +18,11 @@ test( 'stdout option with single pipe', (t) => {
     .expect( 'data' );
   
   mule( [['ls']], { stdout: 'pipe' })
-  .then( (child) => {
+  .then( child => {
     
     expector.emit( typeof child );
     assert( child.hasOwnProperty( 'stdout' ) );
-    child.stdout.on( 'data', (data) => {
+    child.stdout.on( 'data', data => {
       expector.emit( 'data' );
     });
     
@@ -33,7 +32,7 @@ test( 'stdout option with single pipe', (t) => {
   });
 });
 
-test( 'less with path argument', (t) => {
+test( 'less with path argument', t => {
 
   var expector = new Expector(t);
   
@@ -42,12 +41,12 @@ test( 'less with path argument', (t) => {
     .expect( 'data', 'hello' );
 
   mule( [['less', path.join(__dirname, 'sample/test.txt')]], { stdout: 'pipe' })
-  .then( (child) => {
+  .then( child => {
     
     expector.emit( typeof child );
     expector.emit( child.hasOwnProperty( 'stdout' ) ); 
     
-    child.stdout.on( 'data', (data) => {
+    child.stdout.on( 'data', data => {
       expector.emit( 'data', data.toString() );
     });
 
@@ -57,7 +56,7 @@ test( 'less with path argument', (t) => {
   } );
 });
 
-test( 'stdout option with multiple pipe', (t) => {
+test( 'stdout option with multiple pipe', t => {
   
   var expector = new Expector(t);
   expector.expect( 'object' )
@@ -66,13 +65,13 @@ test( 'stdout option with multiple pipe', (t) => {
     .expect( 'data' );
 
   mule( [['ls'], ['less']], { stdout: 'pipe' })
-  .then( (child) => {
+  .then( child => {
 
     expector.emit( typeof child );
     expector.emit( child.hasOwnProperty( 'stdout' ) ); 
     expector.emit( child.hasOwnProperty( 'stdin' ) ); 
     
-    child.stdout.on( 'data', (data) => {
+    child.stdout.on( 'data', data => {
       expector.emit( 'data' );
     });
 
@@ -86,7 +85,7 @@ test( 'stdout option with multiple pipe', (t) => {
   });
 });
 
-test( 'cwd option', (t) => {
+test( 'cwd option', t => {
 
   var expector = new Expector(t);
 
@@ -98,9 +97,9 @@ test( 'cwd option', (t) => {
   expector.expect( 'test.txt\n' ); 
 
   mule( [['ls']], options )
-  .then( (child) => {
+  .then( child => {
     var result = '';
-    child.stdout.on( 'data', (data) => {
+    child.stdout.on( 'data', data => {
       result += data.toString();
     });
 
@@ -111,7 +110,7 @@ test( 'cwd option', (t) => {
   } );
 });
 
-test( 'check stderr', (t) => {
+test( 'check stderr', t => {
   
   var expector = new Expector(t);
   expector.expectNot( 'stdout' )
@@ -125,13 +124,13 @@ test( 'check stderr', (t) => {
       stdin: 'pipe',
       stderr: 'pipe'
     })
-  .then( (child) => {
+  .then( child => {
     
-      child.stderr.on( 'data', (data) => {
+      child.stderr.on( 'data', data => {
         expector.emit( 'stderr' );
       });
 
-      child.stdout.on( 'data', (data) => {
+      child.stdout.on( 'data', data => {
         expector.emit( 'stdout' );
       });
 
@@ -141,7 +140,7 @@ test( 'check stderr', (t) => {
     });
 });
 
-test( 'check stdout', (t) => {
+test( 'check stdout', t => {
 
   var expector = new Expector(t);
   expector.expectNot( 'stderr' )
@@ -155,12 +154,12 @@ test( 'check stdout', (t) => {
       stdin: 'pipe',
       stderr: 'pipe'
     })
-  .then( (child) => {
-    child.stderr.on( 'data', (data) => {
+  .then( child => {
+    child.stderr.on( 'data', data => {
       expector.emit( 'stderr' );
     });
 
-    child.stdout.on( 'data', (data) => {
+    child.stdout.on( 'data', data => {
       expector.emit( 'stdout' );
     });
 
@@ -170,7 +169,7 @@ test( 'check stdout', (t) => {
   });
 });
 
-test( 'check stdin', (t) => {
+test( 'check stdin', t => {
   
   var expector = new Expector(t);
   
@@ -187,9 +186,9 @@ test( 'check stdin', (t) => {
   mule( 
     [['dummy_read']],
     options )
-  .then( (child) => {
+  .then( child => {
       
-      child.stdout.on( 'data', (data) => {
+      child.stdout.on( 'data', data => {
         expector.emit( 'data' ); 
       });
 

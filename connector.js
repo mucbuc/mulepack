@@ -16,10 +16,10 @@ function Connector(options) {
   this.pipeOut = function() {
     return new Promise( (resolve, reject) => {
       openFileIn( tempFile )
-      .then( (fd_in) => {
+      .then( fd_in => {
         resolve({ stdin: fd_in, stdout: options.stdout, stderr: options.stderr }); 
       } )
-      .catch( (err) => {
+      .catch( err => {
         reject( err );
       } ); 
     }); 
@@ -28,12 +28,12 @@ function Connector(options) {
   this.pipeIn = function() {
     return new Promise( (resolve, reject) => {
       openTempFileOut()
-      .then( (openFile) => {
+      .then( openFile => {
         if (typeof tempFile === 'undefined') {
           spawn( options.stdin );
         }
         else {
-          openFileIn( tempFile, (fd_in) => {
+          openFileIn( tempFile, fd_in => {
             spawn( fd_in );
           });
         }
