@@ -14,14 +14,13 @@ function Connector(options) {
   };
 
   this.pipeOut = function() {
+    assert( typeof tempFile !== 'undefined' ); 
     return new Promise( (resolve, reject) => {
       openFileIn( tempFile )
-      .then( fd_in => {
-        resolve({ stdin: fd_in, stdout: options.stdout, stderr: options.stderr }); 
+      .then( fd => {
+        resolve({ stdin: fd, stdout: options.stdout, stderr: options.stderr }); 
       } )
-      .catch( err => {
-        reject( err );
-      } ); 
+      .catch( reject ); 
     }); 
   };
 
@@ -33,9 +32,11 @@ function Connector(options) {
           spawn( options.stdin );
         }
         else {
-          openFileIn( tempFile, fd_in => {
-            spawn( fd_in );
-          });
+          openFileIn( tempFile )
+          .then( fd => {
+            spawn( fd );
+          } )
+          .catch( reject );
         }
 
         function spawn(stdin) {
@@ -50,28 +51,26 @@ function Connector(options) {
   function openFileIn(path) {
     assert(typeof path !== 'undefined');
     return new Promise( (resolve, reject) => {
-        fs.open(path, 'r', (err, fd_in) => {
-          if (err) reject( err );
-          else resolve(fd_in);
-        });
+      fs.open(path, 'r', (err, fd) => {
+        if (err) reject( err );
+        else resolve(fd);
       });
-  };
+    });
+  }
 
   function openTempFileOut() {
     return new Promise( (resolve, reject) => {
       tmp.file( ( err, path ) => {
-          if (err) reject( err );
-          else {
-            fs.open(path, 'a+', (err, fd) => {
-              if (err) reject( err );
-              resolve( { 'descriptor': fd, 'path': path } );
-            });
-          }
-        });
-
+        if (err) reject( err );
+        else {
+          fs.open(path, 'a+', (err, fd) => {
+            if (err) reject( err );
+            else resolve( { 'descriptor': fd, 'path': path } );
+          });
+        }
+      });
     });
-  };
-
+  }
 }
 
 module.exports = Connector;
