@@ -1,3 +1,5 @@
+"use strict";
+
 var assert = require( 'assert' )
   , Connector = require( './connector.js' )
   , cp = require( 'child_process' );
@@ -9,9 +11,7 @@ function mule(pack, options, done) {
   assert( Array.isArray(pack) );
 
   return new Promise(function(resolve, reject) {
-
-    var connector;
-      
+   
     if (typeof options === 'undefined') {
       options = {};
     }
@@ -22,17 +22,15 @@ function mule(pack, options, done) {
       }
     }
 
-    connector = new Connector( options );
+    let connector = new Connector( options );
     processCommand();
     
     function processCommand() {
       
-      var command
-        , args;
       assert(pack.length);
       
-      command = pack[0][0];
-      args = pack[0].slice(1);
+      let command = pack[0][0];
+      let args = pack[0].slice(1);
       pack.splice(0,1);
 
       if (typeof command === "undefined") {
