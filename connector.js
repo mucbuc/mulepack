@@ -3,20 +3,20 @@ var assert = require( 'assert' )
   , tmp = require( 'tmp' );
 
 function Connector(options) {
-  var tempFile;
+  var currentFilePath;
   
   assert(options.hasOwnProperty('stdin'));
   assert(options.hasOwnProperty('stdout'));
   assert(options.hasOwnProperty('stderr'));
 
   this.isActive = function() {
-    return typeof tempFile !== 'undefined';
+    return typeof currentFilePath !== 'undefined';
   };
 
   this.pipeOut = function() {
-    assert( typeof tempFile !== 'undefined' ); 
+    assert( typeof currentFilePath !== 'undefined' ); 
     return new Promise( (resolve, reject) => {
-      openFileIn( tempFile )
+      openFileIn( currentFilePath )
       .then( fd => {
         resolve({ stdin: fd, stdout: options.stdout, stderr: options.stderr }); 
       } )
@@ -28,21 +28,17 @@ function Connector(options) {
     return new Promise( (resolve, reject) => {
       openTempFileOut()
       .then( openFile => {
-        if (typeof tempFile === 'undefined') {
-          spawn( options.stdin );
+        if (typeof currentFilePath === 'undefined') {
+          resolve({ stdin: options.stdin, stdout: openFile.descriptor, stderr: options.stderr });
         }
         else {
-          openFileIn( tempFile )
+          openFileIn( currentFilePath )
           .then( fd => {
-            spawn( fd );
+            resolve({ stdin: fd, stdout: openFile.descriptor, stderr: options.stderr });
           } )
           .catch( reject );
         }
-
-        function spawn(stdin) {
-          tempFile = openFile.path;
-          resolve({ stdin: stdin, stdout: openFile.descriptor, stderr: options.stderr });
-        }
+        currentFilePath = openFile.path;
       })
       .catch( reject );
     });
