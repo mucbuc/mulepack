@@ -9,6 +9,26 @@ var assert = require( 'assert' )
 assert( typeof mule === 'function' );
 assert( typeof Expector === 'function' );
 
+test.skip( 'color output', (t) => {
+
+  mule( 
+    [['node', path.join(__dirname, 'color.js' ) ]],
+    { stdio: 'pipe' }
+  )
+  .then( child => {
+    // child.stdout.on( 'data', data => {
+    //   console.log( data.toString( 'utf-8' ) );
+    // });
+
+    child.on( 'close', function() {
+      t.end();
+    });
+  })
+  .catch( error => {
+    console.log( error );
+  });
+});
+
 test( 'stdout option with single pipe', t => {
   
   var expector = new Expector(t);

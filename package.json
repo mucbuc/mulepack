@@ -18,7 +18,8 @@
   "homepage": "https://github.com/mucbuc/mulepack",
   "devDependencies": {
     "expector": "*",
-    "tape": "*"
+    "tape": "*",
+    "ansi": "*"
   },
   "dependencies": {
     "tmp": "*"

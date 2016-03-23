@@ -60,14 +60,8 @@ function mule(pack, options, done) {
 
   function spawn(command, args, context) {
     var opt = {}; 
-    for(var i in options) {
-      if (i == 'stdio') {
-        opt.stdio = [context.stdin, context.stdout, context.stderr];
-      }
-      else {
-        opt[i] = context[i];
-      }
-    }
+    opt.stdio = [context.stdin, context.stdout, context.stderr];
+    opt.cwd = context.cwd;
     return cp.spawn( command, args, opt ); 
   }
 }
