@@ -61,9 +61,9 @@ function Connector(options) {
       tmp.file( ( err, path ) => {
         if (err) reject( err );
         else {
-          fs.open(path, 'a+', (err, fd) => {
-            if (err) reject( err );
-            else resolve( { 'descriptor': fd, 'path': path } );
+          let stream = fs.createWriteStream( path );
+          stream.on( 'open', (fd) => {
+            resolve( { 'descriptor': fd, 'path': path } );
           });
         }
       });
