@@ -53,6 +53,9 @@ function Connector(options) {
       stream.on( 'open', (fd) => {
         resolve(fd);
       });
+      stream.on( 'error', (err) => {
+        reject( err ); 
+      });
     });
   }
 
@@ -64,6 +67,9 @@ function Connector(options) {
           let stream = fs.createWriteStream( path );
           stream.on( 'open', (fd) => {
             resolve( { 'descriptor': fd, 'path': path } );
+          });
+          stream.on( 'error', (err) => {
+            reject( err ); 
           });
         }
       });
