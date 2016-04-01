@@ -9,10 +9,10 @@ var assert = require( 'assert' )
 assert( typeof mule === 'function' );
 assert( typeof Expector === 'function' );
 
-test.only( 'color output', (t) => {
+test( 'color output', (t) => {
 
   var expector = new Expector(t);
-  expector.expect( 'data' ); 
+  expector.expect( 'data', '\x1b[31mhello\x1b[39;49m' ); 
 
   mule( 
     [['node', path.join(__dirname, 'color.js' ) ]],
@@ -23,15 +23,8 @@ test.only( 'color output', (t) => {
     assert( child.hasOwnProperty( 'stdout' ) ); 
 
     child.stdout.on( 'data', data => {
-      expector.emit( 'data' ); 
-    
-
-      console.log( data.toString( 'utf8' ) );
+      expector.emit( 'data', data.toString() ); 
     });
-
-    // process.stdout.once( 'data', data => { 
-    //   process.stdout.write( data ); 
-    // });
 
     child.on( 'close', function() {
       t.end();
