@@ -113,17 +113,13 @@ test( 'cwd option', t => {
 test( 'check stderr', t => {
   
   var expector = new Expector(t);
-  expector.expectNot( 'stdout' )
+  expector
+    .expectNot( 'stdout' )
     .expect( 'stderr' );
   
   mule( 
     [['cat', 'doesNotExist.txt']], 
-    {
-      controller: expector,
-      stdout: 'pipe',
-      stdin: 'pipe',
-      stderr: 'pipe'
-    })
+    makeOptions(expector))
   .then( child => {
     
       child.stderr.on( 'data', data => {
@@ -148,12 +144,8 @@ test( 'check stdout', t => {
 
   mule( 
     [['ls']], 
-    {
-      controller: expector,
-      stdout: 'pipe',
-      stdin: 'pipe',
-      stderr: 'pipe'
-    })
+    makeOptions(expector)
+  )
   .then( child => {
     child.stderr.on( 'data', data => {
       expector.emit( 'stderr' );
@@ -198,3 +190,12 @@ test( 'check stdin', t => {
       });
   });
 });
+
+function makeOptions(expector) {
+  return {
+    controller: expector,
+    stdout: 'pipe',
+    stdin: 'pipe',
+    stderr: 'pipe'
+  };
+}
