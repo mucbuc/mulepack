@@ -48,6 +48,7 @@ function mule(pack, options, done) {
         connector.pipeOut()
         .then( context => {
           resolve( spawn( command, args, context ) );
+          assert( typeof context.stdout === 'undefined');
         })
         .catch(reject);
       }
@@ -58,10 +59,15 @@ function mule(pack, options, done) {
   });
 
   function spawn(command, args, context) {
-    let opt = {
-      stdio: [context.stdin, context.stdout, context.stderr],
-      cwd: context.cwd
-    };
+    let opt = {}; 
+    for(let i in options) {
+      if (i == 'stdio') {
+        opt.stdio = [context.stdin, context.stdout, context.stderr];
+      }
+      else {
+        opt[i] = context[i];
+      }
+    }
     return cp.spawn( command, args, opt ); 
   }
 }
