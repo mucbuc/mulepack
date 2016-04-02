@@ -9,7 +9,7 @@ var assert = require( 'assert' )
 assert( typeof mule === 'function' );
 assert( typeof Expector === 'function' );
 
-test( 'color output', (t) => {
+test( 'color output', t => {
 
   var expector = new Expector(t);
   expector.expect( 'data', '\x1b[31mhello\x1b[39;49m' ); 
