@@ -1,5 +1,3 @@
-'use strict'; 
-
 var assert = require( 'assert' )  
   , fs = require( 'fs' )
   , tmp = require( 'tmp' );
@@ -49,12 +47,9 @@ function Connector(options) {
   function openFileIn(path) {
     assert(typeof path !== 'undefined');
     return new Promise( (resolve, reject) => {
-      let stream = fs.createReadStream( path );
-      stream.on( 'open', (fd) => {
-        resolve(fd);
-      });
-      stream.on( 'error', (err) => {
-        reject( err ); 
+      fs.open(path, 'r', (err, fd) => {
+        if (err) reject( err );
+        else resolve(fd);
       });
     });
   }
@@ -64,12 +59,9 @@ function Connector(options) {
       tmp.file( ( err, path ) => {
         if (err) reject( err );
         else {
-          let stream = fs.createWriteStream( path );
-          stream.on( 'open', (fd) => {
-            resolve( { 'descriptor': fd, 'path': path } );
-          });
-          stream.on( 'error', (err) => {
-            reject( err ); 
+          fs.open(path, 'a+', (err, fd) => {
+            if (err) reject( err );
+            else resolve( { 'descriptor': fd, 'path': path } );
           });
         }
       });
