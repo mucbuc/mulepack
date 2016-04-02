@@ -9,6 +9,32 @@ var assert = require( 'assert' )
 assert( typeof mule === 'function' );
 assert( typeof Expector === 'function' );
 
+test( 'color output', t => {
+
+  var expector = new Expector(t);
+  expector.expect( 'data', '\x1b[31mhello\x1b[39;49m' ); 
+
+  mule( 
+    [['node', path.join(__dirname, 'color.js' ) ]],
+    { stdout: 'pipe' }
+  )
+  .then( child => {
+
+    assert( child.hasOwnProperty( 'stdout' ) ); 
+
+    child.stdout.on( 'data', data => {
+      expector.emit( 'data', data.toString() ); 
+    });
+
+    child.on( 'close', function() {
+      t.end();
+    });
+  })
+  .catch( error => {
+    console.log( error );
+  });
+});
+
 test( 'stdout option with single pipe', t => {
   
   var expector = new Expector(t);

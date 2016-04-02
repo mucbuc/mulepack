@@ -1,6 +1,6 @@
 "use strict";
 
-var assert = require( 'assert' )
+let assert = require( 'assert' )
   , Connector = require( './connector.js' )
   , cp = require( 'child_process' );
 
@@ -16,7 +16,7 @@ function mule(pack, options, done) {
       options = {};
     }
     
-    for(var name of ['cwd', 'stdin', 'stdout', 'stderr']) {
+    for(let name of ['cwd', 'stdin', 'stdout', 'stderr']) {
       if (!options.hasOwnProperty(name)) {
         options[name] = process[name];
       }
@@ -59,8 +59,8 @@ function mule(pack, options, done) {
   });
 
   function spawn(command, args, context) {
-    var opt = {}; 
-    for(var i in options) {
+    let opt = {}; 
+    for(let i in options) {
       if (i == 'stdio') {
         opt.stdio = [context.stdin, context.stdout, context.stderr];
       }

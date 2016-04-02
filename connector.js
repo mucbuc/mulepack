@@ -5,20 +5,20 @@ var assert = require( 'assert' )
   , tmp = require( 'tmp' );
 
 function Connector(options) {
-  var currentFilePath;
-  
+  var currentPath; 
+
   assert(options.hasOwnProperty('stdin'));
   assert(options.hasOwnProperty('stdout'));
   assert(options.hasOwnProperty('stderr'));
 
   this.isActive = function() {
-    return typeof currentFilePath !== 'undefined';
+    return typeof currentPath !== 'undefined';
   };
 
   this.pipeOut = function() {
-    assert( typeof currentFilePath !== 'undefined' ); 
+    assert( typeof currentPath !== 'undefined' ); 
     return new Promise( (resolve, reject) => {
-      openFileIn( currentFilePath )
+      openFileIn( currentPath )
       .then( fd => {
         resolve({ stdin: fd, stdout: options.stdout, stderr: options.stderr }); 
       } )
@@ -30,17 +30,17 @@ function Connector(options) {
     return new Promise( (resolve, reject) => {
       openTempFileOut()
       .then( openFile => {
-        if (typeof currentFilePath === 'undefined') {
+        if (typeof currentPath === 'undefined') {
           resolve({ stdin: options.stdin, stdout: openFile.descriptor, stderr: options.stderr });
         }
         else {
-          openFileIn( currentFilePath )
+          openFileIn( currentPath )
           .then( fd => {
             resolve({ stdin: fd, stdout: openFile.descriptor, stderr: options.stderr });
           } )
           .catch( reject );
         }
-        currentFilePath = openFile.path;
+        currentPath = openFile.path;
       })
       .catch( reject );
     });
