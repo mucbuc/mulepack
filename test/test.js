@@ -24,10 +24,7 @@ test( 'color output', t => {
 
     child.stdout.on( 'data', data => {
       expector.emit( 'data', data.toString() ); 
-    });
-
-    child.on( 'close', function() {
-      t.end();
+      expector.check();
     });
   })
   .catch( error => {
@@ -35,51 +32,23 @@ test( 'color output', t => {
   });
 });
 
-test( 'stdout option with single pipe', t => {
-  
-  var expector = new Expector(t);
-  
-  expector
-    .expect( 'object' )
-    .expect( 'data' );
-  
-  mule( [['ls']], { stdout: 'pipe' })
-  .then( child => {
-    
-    expector.emit( typeof child );
-    assert( child.hasOwnProperty( 'stdout' ) );
-    child.stdout.on( 'data', data => {
-      expector.emit( 'data' );
-    });
-    
-    child.on( 'close', () => {
-      expector.check(); 
-    });
-  });
-});
-
 test( 'less with path argument', t => {
 
   var expector = new Expector(t);
   
-  expector.expect( 'object' )
-    .expect( true )
-    .expect( 'data', 'hello' );
+  expector.expect( 'data', 'hello' );
 
   mule( [['less', path.join(__dirname, 'sample/test.txt')]], { stdout: 'pipe' })
   .then( child => {
     
-    expector.emit( typeof child );
-    expector.emit( child.hasOwnProperty( 'stdout' ) ); 
+    assert( typeof child === 'object' );
+    assert( child.hasOwnProperty( 'stdout' ) ); 
     
     child.stdout.on( 'data', data => {
       expector.emit( 'data', data.toString() );
-    });
-
-    child.on( 'close', () => {
       expector.check(); 
     });
-  } );
+  });
 });
 
 test( 'stdout option with multiple pipe', t => {
