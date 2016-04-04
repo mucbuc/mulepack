@@ -54,23 +54,17 @@ test( 'less with path argument', t => {
 test( 'stdout option with multiple pipe', t => {
   
   var expector = new Expector(t);
-  expector.expect( 'object' )
-    .expect( true )
-    .expect( true )
-    .expect( 'data' );
+  expector.expect( 'data' );
 
   mule( [['ls'], ['less']], { stdout: 'pipe' })
   .then( child => {
 
-    expector.emit( typeof child );
-    expector.emit( child.hasOwnProperty( 'stdout' ) ); 
-    expector.emit( child.hasOwnProperty( 'stdin' ) ); 
+    assert( typeof child === 'object' );
+    assert( child.hasOwnProperty( 'stdout' ) ); 
+    assert( child.hasOwnProperty( 'stdin' ) ); 
     
     child.stdout.on( 'data', data => {
       expector.emit( 'data' );
-    });
-
-    child.on( 'close', () => {
       expector.check(); 
     });
     child.stdin.write( 'q' );
