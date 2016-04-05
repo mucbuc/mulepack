@@ -24,10 +24,7 @@ test( 'color output', t => {
 
     child.stdout.on( 'data', data => {
       expector.emit( 'data', data.toString() ); 
-    });
-
-    child.on( 'close', function() {
-      t.end();
+      expector.check();
     });
   })
   .catch( error => {
@@ -35,73 +32,39 @@ test( 'color output', t => {
   });
 });
 
-test( 'stdout option with single pipe', t => {
-  
+test( 'less with path argument', t => {
+
   var expector = new Expector(t);
   
-  expector
-    .expect( 'object' )
-    .expect( 'data' );
-  
-  mule( [['ls']], { stdout: 'pipe' })
+  expector.expect( 'data', 'hello' );
+
+  mule( [['less', path.join(__dirname, 'sample/test.txt')]], { stdout: 'pipe' })
   .then( child => {
     
-    expector.emit( typeof child );
-    assert( child.hasOwnProperty( 'stdout' ) );
-    child.stdout.on( 'data', data => {
-      expector.emit( 'data' );
-    });
+    assert( typeof child === 'object' );
+    assert( child.hasOwnProperty( 'stdout' ) ); 
     
-    child.on( 'close', () => {
+    child.stdout.on( 'data', data => {
+      expector.emit( 'data', data.toString() );
       expector.check(); 
     });
   });
 });
 
-test( 'less with path argument', t => {
-
-  var expector = new Expector(t);
-  
-  expector.expect( 'object' )
-    .expect( true )
-    .expect( 'data', 'hello' );
-
-  mule( [['less', path.join(__dirname, 'sample/test.txt')]], { stdout: 'pipe' })
-  .then( child => {
-    
-    expector.emit( typeof child );
-    expector.emit( child.hasOwnProperty( 'stdout' ) ); 
-    
-    child.stdout.on( 'data', data => {
-      expector.emit( 'data', data.toString() );
-    });
-
-    child.on( 'close', () => {
-      expector.check(); 
-    });
-  } );
-});
-
 test( 'stdout option with multiple pipe', t => {
   
   var expector = new Expector(t);
-  expector.expect( 'object' )
-    .expect( true )
-    .expect( true )
-    .expect( 'data' );
+  expector.expect( 'data' );
 
   mule( [['ls'], ['less']], { stdout: 'pipe' })
   .then( child => {
 
-    expector.emit( typeof child );
-    expector.emit( child.hasOwnProperty( 'stdout' ) ); 
-    expector.emit( child.hasOwnProperty( 'stdin' ) ); 
+    assert( typeof child === 'object' );
+    assert( child.hasOwnProperty( 'stdout' ) ); 
+    assert( child.hasOwnProperty( 'stdin' ) ); 
     
     child.stdout.on( 'data', data => {
       expector.emit( 'data' );
-    });
-
-    child.on( 'close', () => {
       expector.check(); 
     });
     child.stdin.write( 'q' );
