@@ -48,10 +48,10 @@ function Connector(options) {
     });
   };
 
-  function openReadFile(path) {
+  function openFile(path, mode) {
     assert(typeof path !== 'undefined');
     return new Promise( (resolve, reject) => {
-      fs.open( path, 'r', (err, fd) => {
+      fs.open( path, mode, (err, fd) => {
         if (err) 
           reject(err);
         else 
@@ -60,18 +60,18 @@ function Connector(options) {
     });
   }
 
+  function openReadFile(path) {
+    return openFile( path, 'r' );
+  }
+
   function openWriteFile() {
     return new Promise( (resolve, reject) => {
       tmp.file( ( err, path ) => {
-        if (err) reject( err );
-        else {
-          fs.open( path, 'a', (err, fd) => {
-            if (err) 
-              reject(err);
-            else
-              resolve( { 'descriptor': fd, 'path': path } );
-          });
-        }
+        openFile( path, 'a' )
+        .then( (fd) => {
+          resolve( { 'descriptor': fd, 'path': path } );
+        })
+        .catch( reject );
       });
     });
   }
