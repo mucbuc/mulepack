@@ -6,7 +6,7 @@ let assert = require( 'assert' )
 
 assert( typeof Connector === 'function' );
 
-function mule(pack, options, done) {
+function mule(pack, options) {
 
   assert( Array.isArray(pack) );
 
