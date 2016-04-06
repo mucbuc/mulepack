@@ -18,7 +18,7 @@ function Connector(options) {
   this.pipeOut = function() {
     assert( typeof currentPath !== 'undefined' ); 
     return new Promise( (resolve, reject) => {
-      openFileIn( currentPath )
+      openReadFile( currentPath )
       .then( fd => {
         resolve({ stdin: fd, stdout: options.stdout, stderr: options.stderr }); 
       } )
@@ -28,13 +28,15 @@ function Connector(options) {
 
   this.pipeIn = function() {
     return new Promise( (resolve, reject) => {
-      openTempFileOut()
+      openWriteFile()
       .then( openFile => {
+        assert( openFile.hasOwnProperty('descriptor') ); 
+        
         if (typeof currentPath === 'undefined') {
           resolve({ stdin: options.stdin, stdout: openFile.descriptor, stderr: options.stderr });
         }
         else {
-          openFileIn( currentPath )
+          openReadFile( currentPath )
           .then( fd => {
             resolve({ stdin: fd, stdout: openFile.descriptor, stderr: options.stderr });
           } )
@@ -46,32 +48,30 @@ function Connector(options) {
     });
   };
 
-  function openFileIn(path) {
+  function openFile(path, mode) {
     assert(typeof path !== 'undefined');
     return new Promise( (resolve, reject) => {
-      let stream = fs.createReadStream( path );
-      stream.on( 'open', (fd) => {
-        resolve(fd);
-      });
-      stream.on( 'error', (err) => {
-        reject( err ); 
+      fs.open( path, mode, (err, fd) => {
+        if (err) 
+          reject(err);
+        else 
+          resolve(fd);
       });
     });
   }
 
-  function openTempFileOut() {
+  function openReadFile(path) {
+    return openFile( path, 'r' );
+  }
+
+  function openWriteFile() {
     return new Promise( (resolve, reject) => {
       tmp.file( ( err, path ) => {
-        if (err) reject( err );
-        else {
-          let stream = fs.createWriteStream( path );
-          stream.on( 'open', (fd) => {
-            resolve( { 'descriptor': fd, 'path': path } );
-          });
-          stream.on( 'error', (err) => {
-            reject( err ); 
-          });
-        }
+        openFile( path, 'a' )
+        .then( (fd) => {
+          resolve( { 'descriptor': fd, 'path': path } );
+        })
+        .catch( reject );
       });
     });
   }

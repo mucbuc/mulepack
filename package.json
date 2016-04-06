@@ -4,7 +4,7 @@
   "description": "workhorse",
   "main": "index.js",
   "scripts": {
-    "test": "tape test/test.js"
+    "test": "tape test/test.js test/connector.js"
   },
   "repository": {
     "type": "git",
