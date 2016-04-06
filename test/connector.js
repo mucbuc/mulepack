@@ -4,15 +4,22 @@
 
 let test = require( 'tape' )
   , assert = require( 'assert' )
-  , Connector = require( '../connector.js' );
+  , Connector = require( '../connector.js' )
+  , fs = require( 'fs' );
 
-test( 'connector isActive', (t) => {
+test( 'connector pipeIn', (t) => {
 	var c = new Connector( { stdout: '', stdin: '', stderr: '' }); 
 	c
 	.pipeIn()
-	.then( () => {
+	.then( ( result ) => {
+		
+		t.assert( result.hasOwnProperty( 'stdout' ) );
 		t.assert( c.isActive() );
-		t.end(); 
+		fs.write( result.stdout, "hello", (err) => {
+			t.assert(!err);
+			t.end(); 
+		} ); 
+		
 	})
 	.catch( () => {
 		t.fail();
