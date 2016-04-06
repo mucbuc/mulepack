@@ -19,7 +19,6 @@ test( 'connector pipeIn', (t) => {
 			t.assert(!err);
 			t.end(); 
 		} ); 
-		
 	})
 	.catch( () => {
 		t.fail();

@@ -18,7 +18,7 @@ function Connector(options) {
   this.pipeOut = function() {
     assert( typeof currentPath !== 'undefined' ); 
     return new Promise( (resolve, reject) => {
-      openFileIn( currentPath )
+      openReadFile( currentPath )
       .then( fd => {
         resolve({ stdin: fd, stdout: options.stdout, stderr: options.stderr }); 
       } )
@@ -28,7 +28,7 @@ function Connector(options) {
 
   this.pipeIn = function() {
     return new Promise( (resolve, reject) => {
-      openTempFileOut()
+      openWriteFile()
       .then( openFile => {
         assert( openFile.hasOwnProperty('descriptor') ); 
         
@@ -36,7 +36,7 @@ function Connector(options) {
           resolve({ stdin: options.stdin, stdout: openFile.descriptor, stderr: options.stderr });
         }
         else {
-          openFileIn( currentPath )
+          openReadFile( currentPath )
           .then( fd => {
             resolve({ stdin: fd, stdout: openFile.descriptor, stderr: options.stderr });
           } )
@@ -48,30 +48,28 @@ function Connector(options) {
     });
   };
 
-  function openFileIn(path) {
+  function openReadFile(path) {
     assert(typeof path !== 'undefined');
     return new Promise( (resolve, reject) => {
-      let stream = fs.createReadStream( path );
-      stream.on( 'open', (fd) => {
-        resolve(fd);
-      });
-      stream.on( 'error', (err) => {
-        reject( err ); 
+      fs.open( path, 'r', (err, fd) => {
+        if (err) 
+          reject(err);
+        else 
+          resolve(fd);
       });
     });
   }
 
-  function openTempFileOut() {
+  function openWriteFile() {
     return new Promise( (resolve, reject) => {
       tmp.file( ( err, path ) => {
         if (err) reject( err );
         else {
-          let stream = fs.createWriteStream( path );
-          stream.on( 'open', (fd) => {
-            resolve( { 'descriptor': fd, 'path': path } );
-          });
-          stream.on( 'error', (err) => {
-            reject( err ); 
+          fs.open( path, 'a', (err, fd) => {
+            if (err) 
+              reject(err);
+            else
+              resolve( { 'descriptor': fd, 'path': path } );
           });
         }
       });
