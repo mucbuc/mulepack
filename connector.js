@@ -30,6 +30,8 @@ function Connector(options) {
     return new Promise( (resolve, reject) => {
       openTempFileOut()
       .then( openFile => {
+        assert( openFile.hasOwnProperty('descriptor') ); 
+        
         if (typeof currentPath === 'undefined') {
           resolve({ stdin: options.stdin, stdout: openFile.descriptor, stderr: options.stderr });
         }
