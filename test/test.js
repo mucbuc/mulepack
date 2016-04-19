@@ -1,5 +1,7 @@
 #!/usr/bin/env node 
 
+'use strict';
+
 var assert = require( 'assert' )
   , Expector = require( 'expector' ).SeqExpector
   , path = require( 'path' )
@@ -152,9 +154,8 @@ test( 'check stdout', t => {
 
 test( 'check stdin', t => {
   
-  var expector = new Expector(t);
-  
-  var options = {
+  let expector = new Expector(t)
+    , options = {
         controller: expector,
         stdout: 'pipe',
         stdin: 'pipe',
