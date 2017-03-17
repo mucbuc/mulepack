@@ -66,13 +66,18 @@ test( 'stdout option with multiple pipe', t => {
     assert( child.hasOwnProperty( 'stdin' ) ); 
     
     child.stdout.on( 'data', data => {
-      expector.emit( 'data' );
-      expector.check(); 
+      
+      console.log( 'got data' ); 
+
+      expector.emit( 'data' ).check(); 
     });
+
     child.stdin.write( 'q' );
-    process.nextTick( () => {
+   
+    // TODO: fix this, it sucks
+    setTimeout( () => {
       child.kill(); 
-    });
+    }, 100 );
   });
 });
 
