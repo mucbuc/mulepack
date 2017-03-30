@@ -92,9 +92,6 @@ function Connector(options) {
         }
         let stream = fs.createWriteStream( path );
         stream.on( 'open', (fd) => {
-          
-          console.log( 'write stream opened' );
-        
           resolve( { descriptor: fd, path } );
         });
         stream.on( 'error', (err) => {
