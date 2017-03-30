@@ -68,7 +68,12 @@ function mule(pack, options) {
         opt[i] = context[i];
       }
     }
-    return cp.spawn( command, args, opt ); 
+    let child = cp.spawn( command, args, opt );
+    child.on( 'error', (error) => {
+      console.log( error );
+      throw error;
+    });
+    return child; 
   }
 }
 
