@@ -48,30 +48,28 @@ function Connector(options) {
     });
   };
 
-  function openFile(path, mode) {
-    assert(typeof path !== 'undefined');
-    return new Promise( (resolve, reject) => {
-      fs.open( path, mode, (err, fd) => {
-        if (err) 
-          reject(err);
-        else 
-          resolve(fd);
-      });
-    });
-  }
-
   function openReadFile(path) {
-    return openFile( path, 'r' );
+    return new Promise( (resolve, reject) => {
+      let stream = fs.createReadStream( path );
+      stream.on( 'open', resolve );
+      stream.on( 'error', reject );
+    });
   }
 
   function openWriteFile() {
     return new Promise( (resolve, reject) => {
       tmp.file( ( err, path ) => {
-        openFile( path, 'a' )
-        .then( (fd) => {
-          resolve( { 'descriptor': fd, 'path': path } );
-        })
-        .catch( reject );
+        if (err) {
+          reject( err );
+          return;
+        }
+        let stream = fs.createWriteStream( path );
+        stream.on( 'open', (fd) => {
+          resolve( { descriptor: fd, path } );
+        });
+        stream.on( 'error', (err) => {
+          reject( err );
+        });
       });
     });
   }
