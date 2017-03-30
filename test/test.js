@@ -163,25 +163,30 @@ test( 'check stdin', t => {
     , options = {
         controller: expector,
         stdout: 'pipe',
-        stdin: 'pipe',
-        env: process.env
+        stdin: 'pipe'
       };
-  options.env.PATH += ':' + path.join( __dirname, 'bin' );
+
 
   expector.expectNot( 'data' ); 
 
   mule( 
-    [['read', '-s', '-n1']],
+    [['read', '-s' ]],
     options )
   .then( child => {
       
       child.stdout.on( 'data', data => {
         expector.emit( 'data' ); 
       });
-      child.stdin.write('a\n');
+
+      child.stderr.on( 'data', data => {
+        expector.emit( 'data' ); 
+      });
+
       child.on( 'close', () => {
         expector.check();
       });
+
+      child.stdin.write('\n');
   });
 });
 
