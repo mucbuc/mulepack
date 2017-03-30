@@ -118,7 +118,7 @@ test( 'check stderr', t => {
     makeOptions(expector))
   .then( child => {
     
-      child.stderr.on( 'data', data => {
+      child.stderr.once( 'data', data => {
         expector.emit( 'stderr' );
       });
 
@@ -157,7 +157,7 @@ test( 'check stdout', t => {
   });
 });
 
-test( 'check stdin', t => {
+test.skip( 'check stdin', t => {
   
   let expector = new Expector(t)
     , options = {
