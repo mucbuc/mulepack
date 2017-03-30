@@ -166,27 +166,27 @@ test( 'check stdin', t => {
         stdin: 'pipe'
       };
 
-
-  expector.expectNot( 'data' ); 
+  expector.expect( 'q\n' ); 
 
   mule( 
-    [['read', '-s' ]],
+    [['echo' ], ['less']],
     options )
   .then( child => {
       
       child.stdout.on( 'data', data => {
-        expector.emit( 'data' ); 
+	expector.emit(data.toString());
       });
 
       child.stderr.on( 'data', data => {
-        expector.emit( 'data' ); 
+       	expector.emit( 'error' ); 
       });
 
       child.on( 'close', () => {
-        expector.check();
+	expector.check();
       });
 
-      child.stdin.write('\n');
+      child.stdin.write('q\n');
+  	child.stdin.end();
   });
 });
 
