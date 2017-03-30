@@ -50,9 +50,36 @@ function Connector(options) {
 
   function openReadFile(path) {
     return new Promise( (resolve, reject) => {
+      /*
+      //this should work 
       let stream = fs.createReadStream( path );
-      stream.on( 'open', resolve );
+      stream.on( 'open', resolve ); 
       stream.on( 'error', reject );
+
+      // but it acts as if the file is closed  
+      fs.open( path, 'r', (err, fd) => {
+        if (err) 
+        {
+          reject(err);
+        }
+        else {
+          fs.closeSync(fd);
+          resolve(fd);
+        }
+      });
+
+      // instead just use open :(
+      */ 
+
+      fs.open( path, 'r', (err, fd) => {
+        if (err) 
+        {
+          reject(err);
+        }
+        else {
+          resolve(fd);
+        }
+      });
     });
   }
 
@@ -65,6 +92,9 @@ function Connector(options) {
         }
         let stream = fs.createWriteStream( path );
         stream.on( 'open', (fd) => {
+          
+          console.log( 'write stream opened' );
+        
           resolve( { descriptor: fd, path } );
         });
         stream.on( 'error', (err) => {
