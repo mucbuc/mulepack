@@ -157,7 +157,7 @@ test( 'check stdout', t => {
   });
 });
 
-test.skip( 'check stdin', t => {
+test( 'check stdin', t => {
   
   let expector = new Expector(t)
     , options = {
@@ -171,14 +171,13 @@ test.skip( 'check stdin', t => {
   expector.expectNot( 'data' ); 
 
   mule( 
-    [['dummy_read']],
+    [['read', '-s', '-n1']],
     options )
   .then( child => {
       
       child.stdout.on( 'data', data => {
         expector.emit( 'data' ); 
       });
-
       child.stdin.write('a\n');
       child.on( 'close', () => {
         expector.check();
