@@ -48,30 +48,57 @@ function Connector(options) {
     });
   };
 
-  function openFile(path, mode) {
-    assert(typeof path !== 'undefined');
+  function openReadFile(path) {
     return new Promise( (resolve, reject) => {
-      fs.open( path, mode, (err, fd) => {
+      /*
+      //this should work 
+      let stream = fs.createReadStream( path );
+      stream.on( 'open', resolve ); 
+      stream.on( 'error', reject );
+
+      // but it acts as if the file is closed  
+      fs.open( path, 'r', (err, fd) => {
         if (err) 
+        {
           reject(err);
-        else 
+        }
+        else {
+          fs.closeSync(fd);
           resolve(fd);
+        }
+      });
+
+      I was able to reproduce this by executing "ls | less". 
+
+      // instead just use open :(
+      */ 
+
+      fs.open( path, 'r', (err, fd) => {
+        if (err) 
+        {
+          reject(err);
+        }
+        else {
+          resolve(fd);
+        }
       });
     });
-  }
-
-  function openReadFile(path) {
-    return openFile( path, 'r' );
   }
 
   function openWriteFile() {
     return new Promise( (resolve, reject) => {
       tmp.file( ( err, path ) => {
-        openFile( path, 'a' )
-        .then( (fd) => {
-          resolve( { 'descriptor': fd, 'path': path } );
-        })
-        .catch( reject );
+        if (err) {
+          reject( err );
+          return;
+        }
+        let stream = fs.createWriteStream( path );
+        stream.on( 'open', (fd) => {
+          resolve( { descriptor: fd, path } );
+        });
+        stream.on( 'error', (err) => {
+          reject( err );
+        });
       });
     });
   }

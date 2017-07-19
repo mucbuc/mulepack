@@ -56,7 +56,7 @@ test( 'less with path argument', t => {
 test( 'stdout option with multiple pipe', t => {
   
   var expector = new Expector(t);
-  expector.expect( 'data' );
+  expector.expect( 'q' );
 
   mule( [['ls'], ['less']], { stdout: 'pipe' })
   .then( child => {
@@ -66,18 +66,11 @@ test( 'stdout option with multiple pipe', t => {
     assert( child.hasOwnProperty( 'stdin' ) ); 
     
     child.stdout.on( 'data', data => {
-      
-      console.log( 'got data' ); 
-
-      expector.emit( 'data' ).check(); 
+      expector.emit( data.toString() ).check(); 
     });
 
     child.stdin.write( 'q' );
-   
-    // TODO: fix this, it sucks
-    setTimeout( () => {
-      child.kill(); 
-    }, 100 );
+    child.stdin.end();
   });
 });
 
