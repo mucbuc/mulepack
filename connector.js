@@ -68,6 +68,8 @@ function Connector(options) {
         }
       });
 
+      I was able to reproduce this by executing "ls | less". 
+
       // instead just use open :(
       */ 
 
