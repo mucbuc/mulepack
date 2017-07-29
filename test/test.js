@@ -192,25 +192,26 @@ test( 'should fail without throwing exception', t => {
     , options = { 
         controller: e,
         stdout: 'ignore',
+        stderr: 'ignore',
         stdin: 'pipe'
     };
 
-  e.expectNot('fail');
+  //e.expectNot('throw');
 
   mule( 
     [['uytyuyt' ]],
     options )
   .then( (createChild) => {
-    console.log( 'eere' );
-    
     let child = createChild();
     child.on( 'close', () => { 
       e.check();
     });
+
+    // prevent unhandled error exception
+    child.on( 'error', () => {});
   })
   .catch( () => {
-    e.expect( 'fail' );
-    e.check();
+    e.emit( 'throw' );
   });
 })
 
