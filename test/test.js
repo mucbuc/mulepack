@@ -196,18 +196,23 @@ test( 'should fail without throwing exception', t => {
     };
 
   e.expectNot('throw');
+  e.expect( 'ENOENT' );
 
   mule( 
     [['non-existing-command' ]],
     options )
   .then( (createChild) => {
+    
     let child = createChild();
+    
     child.on( 'close', () => { 
       e.check();
     });
 
-    // prevent unhandled error exception
-    child.on( 'error', () => {});
+    child.on( 'error', (err) => {
+      t.assert( JSON.stringify( err ).match( /ENOENT/ ) );
+      e.emit( 'ENOENT' );
+    });
   })
   .catch( () => {
     e.emit( 'throw' );
