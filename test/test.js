@@ -20,8 +20,8 @@ test( 'color output', t => {
     [['node', path.join(__dirname, 'color.js' ) ]],
     { stdout: 'pipe' }
   )
-  .then( child => {
-
+  .then( createChild => {
+    let child = createChild();
     assert( child.hasOwnProperty( 'stdout' ) ); 
 
     child.stdout.on( 'data', data => {
@@ -41,8 +41,8 @@ test( 'less with path argument', t => {
   expector.expect( 'data', 'hello' );
 
   mule( [['less', path.join(__dirname, 'sample/test.txt')]], { stdout: 'pipe' })
-  .then( child => {
-    
+  .then( createChild => {
+    let child = createChild();
     assert( typeof child === 'object' );
     assert( child.hasOwnProperty( 'stdout' ) ); 
     
@@ -59,8 +59,8 @@ test( 'stdout option with multiple pipe', t => {
   expector.expect( 'q' );
 
   mule( [['ls'], ['less']], { stdout: 'pipe' })
-  .then( child => {
-
+  .then( createChild => {
+    let child = createChild();
     assert( typeof child === 'object' );
     assert( child.hasOwnProperty( 'stdout' ) ); 
     assert( child.hasOwnProperty( 'stdin' ) ); 
@@ -86,7 +86,8 @@ test( 'cwd option', t => {
   expector.expect( 'test.txt\n' ); 
 
   mule( [['ls']], options )
-  .then( child => {
+  .then( createChild => {
+    let child = createChild();
     var result = '';
     child.stdout.on( 'data', data => {
       result += data.toString();
@@ -109,7 +110,8 @@ test( 'check stderr', t => {
   mule( 
     [['cat', 'doesNotExist.txt']], 
     makeOptions(expector))
-  .then( child => {
+  .then( createChild => {
+      let child = createChild();
     
       child.stderr.once( 'data', data => {
         expector.emit( 'stderr' );
@@ -135,7 +137,8 @@ test( 'check stdout', t => {
     [['ls']], 
     makeOptions(expector)
   )
-  .then( child => {
+  .then( createChild => {
+    let child = createChild();
     child.stderr.on( 'data', data => {
       expector.emit( 'stderr' );
     });
@@ -164,24 +167,57 @@ test( 'check stdin', t => {
   mule( 
     [['echo' ], ['less']],
     options )
-  .then( child => {
+  .then( createChild => {
+      let child = createChild();
       
       child.stdout.on( 'data', data => {
-	expector.emit(data.toString());
+        expector.emit(data.toString());
       });
 
       child.stderr.on( 'data', data => {
-       	expector.emit( 'error' ); 
+        expector.emit( 'error' ); 
       });
 
       child.on( 'close', () => {
-	expector.check();
+        expector.check();
       });
 
       child.stdin.write('q\n');
-  	child.stdin.end();
+    child.stdin.end();
   });
 });
+
+test( 'should fail without throwing exception', t => {
+  let e = new Expector(t)
+    , options = { 
+        controller: e,
+        stderr: 'ignore',
+        stdin: 'pipe'
+    };
+
+  e.expectNot('throw');
+  e.expect( 'ENOENT' );
+
+  mule( 
+    [['non-existing-command' ]],
+    options )
+  .then( (createChild) => {
+    
+    let child = createChild();
+    
+    child.on( 'close', () => { 
+      e.check();
+    });
+
+    child.on( 'error', (err) => {
+      t.assert( JSON.stringify( err ).match( /ENOENT/ ) );
+      e.emit( 'ENOENT' );
+    });
+  })
+  .catch( () => {
+    e.emit( 'throw' );
+  });
+})
 
 function makeOptions(expector) {
   return {
