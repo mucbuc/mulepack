@@ -39,7 +39,7 @@ function mule(pack, options) {
       else if (pack.length) {
         connector.pipeIn()
         .then( context => {
-          spawn( command, args, context );
+          spawn( command, args, context )();
           processCommand();
         })
         .catch(reject);
@@ -56,25 +56,29 @@ function mule(pack, options) {
         resolve( spawn( command, args, options ) );
       }
     }
-  });
-
-  function spawn(command, args, context) {
-    let opt = {}; 
-    for(let i in options) {
-      if (i == 'stdio') {
-        opt.stdio = [context.stdin, context.stdout, context.stderr];
-      }
-      else {
-        opt[i] = context[i];
+  
+    function spawn(command, args, context) {
+      return () => {
+        let opt = {}; 
+        for(let i in options) {
+          if (i == 'stdio') {
+            opt.stdio = [context.stdin, context.stdout, context.stderr];
+          }
+          else {
+            opt[i] = context[i];
+          }
+        }
+        let child = cp.spawn( command, args, opt );
+        child.on( 'error', (error) => {
+          console.log( error );
+          //reject( error );
+          //throw error;
+        });
+        return child;
       }
     }
-    let child = cp.spawn( command, args, opt );
-    child.on( 'error', (error) => {
-      console.log( error );
-      throw error;
-    });
-    return child; 
-  }
+  });
+
 }
 
 module.exports = mule;
