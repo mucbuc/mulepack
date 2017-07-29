@@ -191,7 +191,7 @@ test( 'should fail without throwing exception', t => {
   let e = new Expector(t)
     , options = { 
         controller: e,
-        stdout: 'pipe',
+        stdout: 'ignore',
         stdin: 'pipe'
     };
 
