@@ -191,15 +191,14 @@ test( 'should fail without throwing exception', t => {
   let e = new Expector(t)
     , options = { 
         controller: e,
-        stdout: 'ignore',
         stderr: 'ignore',
         stdin: 'pipe'
     };
 
-  //e.expectNot('throw');
+  e.expectNot('throw');
 
   mule( 
-    [['uytyuyt' ]],
+    [['non-existing-command' ]],
     options )
   .then( (createChild) => {
     let child = createChild();
