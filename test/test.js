@@ -167,21 +167,44 @@ test( 'check stdin', t => {
   .then( child => {
       
       child.stdout.on( 'data', data => {
-	expector.emit(data.toString());
+        expector.emit(data.toString());
       });
 
       child.stderr.on( 'data', data => {
-       	expector.emit( 'error' ); 
+        expector.emit( 'error' ); 
       });
 
       child.on( 'close', () => {
-	expector.check();
+        expector.check();
       });
 
       child.stdin.write('q\n');
-  	child.stdin.end();
+    child.stdin.end();
   });
 });
+
+test.only( 'should fail without throwing exception', t => {
+  let e = new Expector(t)
+    , options = { 
+        controller: e,
+        stdout: 'pipe',
+        stdin: 'pipe'
+    };
+
+  e.expect( 'fail' );
+
+  mule( 
+    [['uytyuyt' ]],
+    options )
+  .then( () => {
+    e.emit( 'pass' );
+    e.check();
+  })
+  .catch( () => { 
+    e.emit( 'fail' );
+    e.check();
+  });
+})
 
 function makeOptions(expector) {
   return {
